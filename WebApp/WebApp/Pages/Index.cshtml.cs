@@ -1,10 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
-using Microsoft.Extensions.Logging;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+using System.Diagnostics.CodeAnalysis;
 using WebApp.Models;
 using WebApp.Services;
 
@@ -13,13 +9,16 @@ namespace WebApp.Pages
     public class IndexModel : PageModel
     {
         private readonly ILogger<IndexModel> _logger;
+
         private BikeTripService _bikeTripService;
         public IEnumerable<BikeTrip> BikeTrips { get; private set; }
 
         public IndexModel(ILogger<IndexModel> logger, BikeTripService bikeTripService)
         {
             _logger = logger;
+
             _bikeTripService = bikeTripService;
+            BikeTrips = new BikeTrip[0];
         }
 
         public void OnGet()
