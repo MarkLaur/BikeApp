@@ -1,7 +1,13 @@
 ﻿using Microsoft.AspNetCore.Hosting;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
+using System.Formats.Asn1;
+using System.IO;
 using System.Linq;
+using System.Net.Http.Headers;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 using WebApp.Models;
 
@@ -11,24 +17,49 @@ namespace WebApp.Services
     {
         public IWebHostEnvironment WebHostEnvironment { get; }
 
-        private Uri BikeTripsApi { get; set; }
-
         public BikeTripService(IWebHostEnvironment webHostEnvironment)
         {
             WebHostEnvironment = webHostEnvironment;
-
-            //TODO: create api server and set correct url
-            //TODO: move ip and port definition to some global config file
-            BikeTripsApi = new Uri("localhost:555/BikeTrips");
         }
 
         public IEnumerable<BikeTrip> GetBikeTrips()
         {
-            //TODO: implement api server json query
-            //TOOD: implement json deserialization
             //TODO: implement pagination
 
-            return new List<BikeTrip> { new BikeTrip("Trip1"), new BikeTrip("Trip2") };
+            //TODO: this probably blocks the thread really bad, fix this
+            Task<IEnumerable<BikeTrip>> task = GetTripsAsync();
+            var result = task.Result;
+
+            return result;
+        }
+
+        public async Task<IEnumerable<BikeTrip>> GetTripsAsync()
+        {
+            //TODO: create some kind of api service for this stuff
+
+            //Initialize client
+            HttpClient client = new HttpClient();
+            client.BaseAddress = ApiDefinitions.BikeTripsUri;
+            client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+
+            //Perform api request
+            HttpResponseMessage response = await client.GetAsync("");
+            if (!response.IsSuccessStatusCode)
+            {
+                //Default to an empty array.
+                //TODO: return a failure error code and tell the user that api broke
+                return new BikeTrip[0];
+            }
+
+            Stream jsonStream = await response.Content.ReadAsStreamAsync();
+            IEnumerable<BikeTrip>? trips = await JsonSerializer.DeserializeAsync<BikeTrip[]>(jsonStream,
+                new JsonSerializerOptions
+                {
+                    PropertyNameCaseInsensitive = true
+                });
+
+            if (trips == null) return new BikeTrip[0];
+            else return trips;
         }
     }
 }

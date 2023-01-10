@@ -4,11 +4,11 @@ namespace ApiServer.Controllers
 {
     [ApiController]
     [Route("[controller]")]
-    public class BikeTripController : ControllerBase
+    public class BikeTripsController : ControllerBase
     {
-        private readonly ILogger<BikeTripController> _logger;
+        private readonly ILogger<BikeTripsController> _logger;
 
-        public BikeTripController(ILogger<BikeTripController> logger)
+        public BikeTripsController(ILogger<BikeTripsController> logger)
         {
             _logger = logger;
         }

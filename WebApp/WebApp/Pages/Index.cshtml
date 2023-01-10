@@ -5,6 +5,23 @@
 }
 
 <div class="text-center">
-    <h1 class="display-4">Welcome</h1>
+    <h1 class="display-4">Welcome to my bike app thingy</h1>
     <p>Learn about <a href="https://docs.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
 </div>
+
+<h2>List of trips</h2>
+
+<table>
+    <tr>
+        <th>Name</th>
+        <th>Length</th>
+    </tr>
+@foreach (Models.BikeTrip trip in Model.BikeTrips)
+    {
+        <tr>
+            <td>@trip.Name</td>
+            <td>@trip.Length</td> 
+        </tr>
+    }
+
+</table>
