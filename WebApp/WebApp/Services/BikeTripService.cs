@@ -38,6 +38,7 @@ namespace WebApp.Services
             //TODO: create some kind of api service for this stuff
 
             //Initialize client
+            //TODO: cache and reuse HttpClient
             HttpClient client = new HttpClient();
             client.BaseAddress = ApiDefinitions.BikeTripsUri;
             client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));

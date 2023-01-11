@@ -1,3 +1,4 @@
+using ApiServer.Tools;
 using Microsoft.AspNetCore.Mvc;
 
 namespace ApiServer.Controllers
@@ -16,12 +17,12 @@ namespace ApiServer.Controllers
         [HttpGet(Name = "GetBikeTrips")]
         public IEnumerable<BikeTrip> Get()
         {
-            return Enumerable.Range(1, 5).Select(index => new BikeTrip
+            if(!DatabaseHandler.TryGetTrips(out IEnumerable<BikeTrip> trips))
             {
-                Name = $"Trip {index}",
-                Length = index * index
-            })
-            .ToArray();
+                _logger.LogError("Couldn't get trips.");
+            }
+
+            return trips;
         }
     }
 }
