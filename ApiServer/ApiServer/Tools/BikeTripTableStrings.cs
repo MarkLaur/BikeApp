@@ -14,8 +14,8 @@ namespace ApiServer.Tools
 
         //Column names of biketrips table.
         public const string ID = "ID";
-        public const string Departure = "Departure";
-        public const string Return = "Return";
+        public const string Departure = "DepartureTime";
+        public const string Return = "ReturnTime";
         public const string DepartureStationID = "DepartureStationID";
         public const string ReturnStationID = "ReturnStationID";
         public const string Distance = "Distance";
