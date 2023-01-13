@@ -48,7 +48,7 @@ namespace ApiServer.Tools
 
                 using (MySqlCommand cmd = conn.CreateCommand())
                 {
-                    cmd.CommandText = BikeTripTableStrings.BikeTripQuery;
+                    cmd.CommandText = BikeTripTableStrings.BikeTripQueryWithStationNames;
                     using (MySqlDataReader reader = cmd.ExecuteReader())
                     {
                         //TODO: check if all needed columns exist
@@ -63,8 +63,8 @@ namespace ApiServer.Tools
                                 reader.GetInt32(BikeTripTableStrings.ID),
                                 reader.GetDateTime(BikeTripTableStrings.Departure),
                                 reader.GetDateTime(BikeTripTableStrings.Return),
-                                new Station(reader.GetInt32(BikeTripTableStrings.DepartureStationID), "TODO"),
-                                new Station(reader.GetInt32(BikeTripTableStrings.ReturnStationID), "TODO"),
+                                new Station(reader.GetInt32(BikeTripTableStrings.DepartureStationID), reader.GetString(BikeTripTableStrings.DepartureStationName)),
+                                new Station(reader.GetInt32(BikeTripTableStrings.ReturnStationID), reader.GetString(BikeTripTableStrings.ReturnStationName)),
                                 reader.GetInt32(BikeTripTableStrings.Distance),
                                 new TimeSpan(0, 0, reader.GetInt32(BikeTripTableStrings.Duration))
                                 ));

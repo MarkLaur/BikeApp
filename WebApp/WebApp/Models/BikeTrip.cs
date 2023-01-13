@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 
 namespace WebApp.Models
@@ -10,8 +11,12 @@ namespace WebApp.Models
         public int ID { get; private set; }
         public DateTime DepartureTime { get; private set; }
         public DateTime ReturnTime { get; private set; }
+
+        //[JsonPropertyName("departureStation")]
         public Station DepartureStation { get; private set; }
+        //[JsonPropertyName("returnStation")]
         public Station ReturnStation { get; private set; }
+
         /// <summary>
         /// The trip's distance in meters.
         /// </summary>

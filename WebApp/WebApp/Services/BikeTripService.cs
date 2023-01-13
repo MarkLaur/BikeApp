@@ -59,6 +59,13 @@ namespace WebApp.Services
                     PropertyNameCaseInsensitive = true
                 });
 
+            //TODO: fix nested object deserialization
+            //The built in json deserializer cant deserialize the nested struct for some reason. Consider using Newtonsoft.Json
+            /*
+            List<BikeTrip> tripsList = trips.ToList();
+            Station station = tripsList[0].DepartureStation;
+            */
+
             if (trips == null) return new BikeTrip[0];
             else return trips;
         }

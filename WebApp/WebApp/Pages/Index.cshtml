@@ -16,6 +16,8 @@
         <th>ID</th>
         <th>Departure</th>
         <th>Return</th>
+        <th>Departure Station</th>
+        <th>Return Station</th>
         <th>Duration</th>
         <th>Distance</th>
     </tr>
@@ -25,6 +27,8 @@
             <td>@trip.ID</td>
             <td>@trip.DepartureTime</td>
             <td>@trip.ReturnTime</td>
+            <td>@trip.DepartureStation.Name</td>
+            <td>@trip.ReturnStation.Name</td>
             <td>@trip.Duration.Seconds</td>
             <td>@trip.Distance</td>
         </tr>
