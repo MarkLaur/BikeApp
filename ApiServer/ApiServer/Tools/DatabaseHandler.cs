@@ -1,4 +1,5 @@
 ﻿using ApiServer.Controllers;
+using ApiServer.Models;
 using MySql.Data.MySqlClient;
 using System.Data;
 using System.Diagnostics;
@@ -8,7 +9,7 @@ namespace ApiServer.Tools
     public static class DatabaseHandler
     {
         //TODO: change default password and user
-        private const string connectionString = "Server=localhost; Port=3307; Database=test; Uid=root; Pwd=usbw;";
+        private const string connectionString = "Server=localhost; Port=3307; Database=bikeapp; Uid=root; Pwd=usbw;";
 
         public static bool TestConnection()
         {
@@ -43,14 +44,35 @@ namespace ApiServer.Tools
                     return false;
                 }
 
-                //TODO: get data from database
-                trips = Enumerable.Range(1, 5).Select(index => new BikeTrip
-                {
-                    Name = $"Trip {index}",
-                    Length = index * index
-                })
-                .ToArray();
+                List<BikeTrip> tripList = new List<BikeTrip>();
 
+                using (MySqlCommand cmd = conn.CreateCommand())
+                {
+                    cmd.CommandText = BikeTripTableStrings.BikeTripQuery;
+                    using (MySqlDataReader reader = cmd.ExecuteReader())
+                    {
+                        //TODO: check if all needed columns exist
+
+                        //Read() return false when end of query is reached
+                        while (reader.Read())
+                        {
+                            //We don't have any nullable columns so null check shouldn't be needed.
+
+                            //Create a new BikeTrip with data from query and add it to trip list
+                            tripList.Add(new BikeTrip(
+                                reader.GetInt32(BikeTripTableStrings.ID),
+                                reader.GetDateTime(BikeTripTableStrings.Departure),
+                                reader.GetDateTime(BikeTripTableStrings.Return),
+                                new Station(reader.GetInt32(BikeTripTableStrings.DepartureStationID), "TODO"),
+                                new Station(reader.GetInt32(BikeTripTableStrings.ReturnStationID), "TODO"),
+                                reader.GetInt32(BikeTripTableStrings.Distance),
+                                new TimeSpan(0, 0, reader.GetInt32(BikeTripTableStrings.Duration))
+                                ));
+                        }
+                    }
+                }
+
+                trips = tripList;
                 return true;
             }
         }

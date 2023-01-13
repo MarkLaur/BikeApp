@@ -13,14 +13,20 @@
 
 <table>
     <tr>
-        <th>Name</th>
-        <th>Length</th>
+        <th>ID</th>
+        <th>Departure</th>
+        <th>Return</th>
+        <th>Duration</th>
+        <th>Distance</th>
     </tr>
 @foreach (Models.BikeTrip trip in Model.BikeTrips)
     {
         <tr>
-            <td>@trip.Name</td>
-            <td>@trip.Length</td> 
+            <td>@trip.ID</td>
+            <td>@trip.DepartureTime</td>
+            <td>@trip.ReturnTime</td>
+            <td>@trip.Duration.Seconds</td>
+            <td>@trip.Distance</td>
         </tr>
     }
 
