@@ -4,7 +4,7 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddRazorPages();
-builder.Services.AddTransient<BikeTripService>();
+builder.Services.AddTransient<ApiService>();
 
 var app = builder.Build();
 

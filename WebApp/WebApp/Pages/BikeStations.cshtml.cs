@@ -6,19 +6,19 @@ using WebApp.Services;
 
 namespace WebApp.Pages
 {
-    public class BikeTripsModel : PageModel
+    public class BikeStationsModel : PageModel
     {
         private readonly ILogger<IndexModel> _logger;
 
         private ApiService _apiService;
-        public IEnumerable<BikeTrip> BikeTrips { get; private set; }
+        public IEnumerable<Station> BikeStations { get; private set; }
 
-        public BikeTripsModel(ILogger<IndexModel> logger, ApiService apiService)
+        public BikeStationsModel(ILogger<IndexModel> logger, ApiService apiService)
         {
             _logger = logger;
 
             _apiService = apiService;
-            BikeTrips = new BikeTrip[0];
+            BikeStations = new Station[0];
         }
 
         public void OnGet()
@@ -26,18 +26,18 @@ namespace WebApp.Pages
             //TODO: implement pagination
 
             //TODO: this probably blocks the thread really bad, fix this
-            Task<(bool, string?)> task = _apiService.GetTripsJson();
+            Task<(bool, string?)> task = _apiService.TryGetJson(ApiDefinitions.BikeStationsUri);
             (bool, string?) result = task.Result;
 
             //Set empty array and return if request failed
             if (!result.Item1 || result.Item2 == null)
             {
                 //Bike trips should be an empty array already so no need to re-create it
-                _logger.LogError("Bike trip api request failed");
+                _logger.LogError("Bike station api request failed");
                 return;
             }
 
-            IEnumerable<BikeTrip>? trips = JsonSerializer.Deserialize<BikeTrip[]>(result.Item2,
+            IEnumerable<Station>? stations = JsonSerializer.Deserialize<Station[]>(result.Item2,
             new JsonSerializerOptions
             {
                 PropertyNameCaseInsensitive = true
@@ -51,14 +51,14 @@ namespace WebApp.Pages
             */
 
             //Set empty array and return if deserialization failed
-            if (trips == null)
+            if (stations == null)
             {
                 //Bike trips should be an empty array already so no need to re-create it
-                _logger.LogError("Bike trip deserialization failed");
+                _logger.LogError("Bike station deserialization failed");
                 return;
             }
 
-            BikeTrips = trips;
+            BikeStations = stations;
         }
     }
 }
