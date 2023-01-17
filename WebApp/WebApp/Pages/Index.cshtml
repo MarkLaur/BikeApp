@@ -6,32 +6,5 @@
 
 <div class="text-center">
     <h1 class="display-4">Welcome to my bike app thingy</h1>
-    <p>Learn about <a href="https://docs.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+    <p>The top bar has links to pages</p>
 </div>
-
-<h2>List of trips</h2>
-
-<table>
-    <tr>
-        <th>ID</th>
-        <th>Departure</th>
-        <th>Return</th>
-        <th>Departure Station</th>
-        <th>Return Station</th>
-        <th>Duration</th>
-        <th>Distance</th>
-    </tr>
-@foreach (Models.BikeTrip trip in Model.BikeTrips)
-    {
-        <tr>
-            <td>@trip.ID</td>
-            <td>@trip.DepartureTime</td>
-            <td>@trip.ReturnTime</td>
-            <td>@trip.DepartureStation.Name</td>
-            <td>@trip.ReturnStation.Name</td>
-            <td>@trip.Duration.Seconds</td>
-            <td>@trip.Distance</td>
-        </tr>
-    }
-
-</table>

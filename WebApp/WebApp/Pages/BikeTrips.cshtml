@@ -1,0 +1,36 @@
+﻿@page
+@model WebApp.Pages.BikeTripsModel
+@{
+    ViewData["Title"] = "Bike Trips";
+}
+
+<h2>List of trips</h2>
+
+<table>
+    <tr>
+        <th>Journey</th>
+        <th>Departure time</th>
+        <th>Return time</th>
+        <th>Departure Station</th>
+        <th>Return Station</th>
+        <th>Duration</th>
+        <th>Distance</th>
+    </tr>
+
+    @foreach (Models.BikeTrip trip in Model.BikeTrips)
+    {
+        //Distance and duration need some custom formatting
+        string durationMessage = $"{trip.Duration.Minutes}m {trip.Duration.Seconds}s";
+        string distanceMessage = $"{(trip.Distance / 1000f).ToString("0.00")} km";
+
+        <tr>
+            <td>@trip.ID</td>
+            <td>@trip.DepartureTime</td>
+            <td>@trip.ReturnTime</td>
+            <td>@trip.DepartureStation.Name</td>
+            <td>@trip.ReturnStation.Name</td>
+            <td>@durationMessage</td>
+            <td>@distanceMessage</td>
+        </tr>
+    }
+</table>
