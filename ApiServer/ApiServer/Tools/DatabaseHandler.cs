@@ -29,20 +29,11 @@ namespace ApiServer.Tools
             }
         }
 
-        public static bool TryGetTrips(out IEnumerable<BikeTrip> trips)
+        public static IEnumerable<BikeTrip> GetTrips()
         {
             using (MySqlConnection conn = new MySqlConnection(connectionString))
             {
-                try
-                {
-                    conn.Open();
-                }
-                catch
-                {
-                    //TODO: return a enum result or log something
-                    trips = new BikeTrip[0];
-                    return false;
-                }
+                conn.Open();
 
                 List<BikeTrip> tripList = new List<BikeTrip>();
 
@@ -72,8 +63,7 @@ namespace ApiServer.Tools
                     }
                 }
 
-                trips = tripList;
-                return true;
+                return tripList;
             }
         }
     }

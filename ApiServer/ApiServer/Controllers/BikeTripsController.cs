@@ -1,6 +1,7 @@
 using ApiServer.Models;
 using ApiServer.Tools;
 using Microsoft.AspNetCore.Mvc;
+using System.Net;
 
 namespace ApiServer.Controllers
 {
@@ -16,14 +17,25 @@ namespace ApiServer.Controllers
         }
 
         [HttpGet(Name = "GetBikeTrips")]
-        public IEnumerable<BikeTrip> Get()
+        public ActionResult<IEnumerable<BikeTrip>> Post([FromHeader] string apiKey)
         {
-            if(!DatabaseHandler.TryGetTrips(out IEnumerable<BikeTrip> trips))
+            //TODO: implement a proper api key test
+            if(apiKey != "1111")
             {
-                _logger.LogError("Couldn't get trips.");
+                return StatusCode(StatusCodes.Status401Unauthorized);
             }
 
-            return trips;
+            try
+            {
+                IEnumerable<BikeTrip> trips = DatabaseHandler.GetTrips();
+                return new ActionResult<IEnumerable<BikeTrip>>(trips);
+            }
+            catch (Exception ex)
+            {
+                //Log goes to the console window and the status code as a response to the client
+                _logger.LogError($"Failed to respond to BikeTrips api request. {ex.Message}");
+                return StatusCode(StatusCodes.Status500InternalServerError);
+            }
         }
     }
 }

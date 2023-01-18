@@ -27,6 +27,7 @@ namespace WebApp.Services
         {
             //Initialize client, we don't have anything but json api requests for now so this is all set only once.
             client.BaseAddress = ApiDefinitions.ApiServer;
+            client.DefaultRequestHeaders.Add(ApiDefinitions.ApiKeyHeaderName, ApiDefinitions.ApiKey);
             client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
         }
 
@@ -47,53 +48,18 @@ namespace WebApp.Services
         /// </summary>
         /// <param name="uri"></param>
         /// <returns></returns>
-        public async Task<(bool, string?)> TryGetJson(Uri uri)
+        public async Task<string> GetJson(Uri uri)
         {
             //Perform api request
             HttpResponseMessage response = await client.GetAsync(uri);
             if (!response.IsSuccessStatusCode)
             {
-                //TODO: return a failure error code and tell the user that api broke
-                return (false, null);
+                throw new BadHttpRequestException("Couldn't get data from api.");
             }
 
             string json = await response.Content.ReadAsStringAsync();
-            return (true, json);
+            return json;
         }
-
-        /// <summary>
-        /// Tries to get json string from bike trips uri. Returns a (success, json) tuple.
-        /// </summary>
-        /// <param name="uri"></param>
-        /// <returns></returns>
-        public async Task<(bool, string?)> GetTripsJson()
-        {
-            return await TryGetJson(ApiDefinitions.BikeTripsUri);
-        }
-        /*
-
-        public async Task<IEnumerable<Station>> GetStationsAsync()
-        {
-            //Perform api request
-            HttpResponseMessage response = await client.GetAsync(ApiDefinitions.BikeStationsUri);
-            if (!response.IsSuccessStatusCode)
-            {
-                //Default to an empty array.
-                //TODO: return a failure error code and tell the user that api broke
-                return new Station[0];
-            }
-
-            Stream jsonStream = await response.Content.ReadAsStreamAsync();
-            IEnumerable<Station>? stations = await JsonSerializer.DeserializeAsync<Station[]>(jsonStream,
-                new JsonSerializerOptions
-                {
-                    PropertyNameCaseInsensitive = true
-                });
-
-            if (stations == null) return new Station[0];
-            else return stations;
-        }
-    */
         #endregion
     }
 }

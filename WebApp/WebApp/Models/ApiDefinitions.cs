@@ -5,6 +5,9 @@
     /// </summary>
     public static class ApiDefinitions
     {
+        public readonly static string ApiKeyHeaderName = "apiKey";
+        public readonly static string ApiKey = "1111";
+
         private readonly static string ApiServerIP = "https://localhost";
         private readonly static int ApiServerPort = 7170;
 

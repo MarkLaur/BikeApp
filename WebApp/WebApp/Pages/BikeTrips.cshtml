@@ -6,7 +6,13 @@
 
 <h2>List of trips</h2>
 
-<table>
+@if (Model.ErrorMessage != null)
+{
+        <p>@Model.ErrorMessage</p>
+}
+else
+{ 
+    <table>
     <tr>
         <th>Journey</th>
         <th>Departure time</th>
@@ -33,4 +39,6 @@
             <td>@distanceMessage</td>
         </tr>
     }
-</table>
+
+    </table>
+}

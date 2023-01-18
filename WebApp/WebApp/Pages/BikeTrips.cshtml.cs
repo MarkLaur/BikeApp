@@ -11,6 +11,14 @@ namespace WebApp.Pages
         private readonly ILogger<IndexModel> _logger;
 
         private ApiService _apiService;
+
+        /// <summary>
+        /// Contains the error message shown to user. Will be null if no errors occurred.
+        /// </summary>
+        public string? ErrorMessage { get; private set; }
+        /// <summary>
+        /// Contains station data if ErrorMessage isn't null.
+        /// </summary>
         public IEnumerable<BikeTrip> BikeTrips { get; private set; }
 
         public BikeTripsModel(ILogger<IndexModel> logger, ApiService apiService)
@@ -25,19 +33,23 @@ namespace WebApp.Pages
         {
             //TODO: implement pagination
 
-            //TODO: this probably blocks the thread really bad, fix this
-            Task<(bool, string?)> task = _apiService.GetTripsJson();
-            (bool, string?) result = task.Result;
+            string json;
 
-            //Set empty array and return if request failed
-            if (!result.Item1 || result.Item2 == null)
+            try
             {
-                //Bike trips should be an empty array already so no need to re-create it
-                _logger.LogError("Bike trip api request failed");
+                //TODO: this probably blocks the thread really bad, fix this
+                Task<string> task = _apiService.GetJson(ApiDefinitions.BikeTripsUri);
+                json = task.Result;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError("Bike trips api request failed");
+
+                ErrorMessage = ex.Message;
                 return;
             }
 
-            IEnumerable<BikeTrip>? trips = JsonSerializer.Deserialize<BikeTrip[]>(result.Item2,
+            IEnumerable<BikeTrip>? trips = JsonSerializer.Deserialize<BikeTrip[]>(json,
             new JsonSerializerOptions
             {
                 PropertyNameCaseInsensitive = true
@@ -54,7 +66,8 @@ namespace WebApp.Pages
             if (trips == null)
             {
                 //Bike trips should be an empty array already so no need to re-create it
-                _logger.LogError("Bike trip deserialization failed");
+                ErrorMessage = "Bike trip deserialization failed";
+                _logger.LogError(ErrorMessage);
                 return;
             }
 

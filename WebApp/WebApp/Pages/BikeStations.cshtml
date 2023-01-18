@@ -6,17 +6,23 @@
 
 <h2>List of bike stations</h2>
 
-<table>
-    <tr>
-        <th>Station ID</th>
-        <th>Name</th>
-    </tr>
-
+@if(Model.ErrorMessage != null)
+{
+    <p>@Model.ErrorMessage</p>
+}
+else
+{
+    <table>
+        <tr>
+            <th>Station ID</th>
+            <th>Name</th>
+        </tr>
     @foreach (Models.Station station in Model.BikeStations)
     {
-            <tr>
-                <td>@station.ID</td>
-                <td>@station.Name</td>
-            </tr>
+        <tr>
+            <td>@station.ID</td>
+            <td>@station.Name</td>
+        </tr>
     }
-</table>
+    </table>
+}
