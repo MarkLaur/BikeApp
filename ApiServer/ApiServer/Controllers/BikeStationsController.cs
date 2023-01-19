@@ -17,14 +17,8 @@ namespace ApiServer.Controllers
         }
 
         [HttpGet(Name = "GetBikeStations")]
-        public ActionResult<IEnumerable<Station>> Post([FromHeader] string apiKey)
+        public ActionResult<IEnumerable<Station>> Get()
         {
-            //TODO: implement a proper api key test
-            if(apiKey != "1111")
-            {
-                return StatusCode(StatusCodes.Status401Unauthorized);
-            }
-
             try
             {
                 IEnumerable<Station> stations = DatabaseHandler.GetStations();

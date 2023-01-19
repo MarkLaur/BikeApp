@@ -1,3 +1,4 @@
+using ApiServer.Middlewares;
 using ApiServer.Tools;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -19,6 +20,8 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+
+app.UseMiddleware<ApiKeyCheck>();
 
 app.UseAuthorization();
 
