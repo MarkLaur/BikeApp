@@ -14,11 +14,11 @@ namespace ApiServer.Tools
 
         public const string BikeTripQueryWithStationNames = 
             "SELECT biketrips . * , " +                                 //Select bike trips
-            "departurestation.name AS DepartureStationName, " +         //Rename departure station name field so that it is unique
-            "returnstation.name AS ReturnStationName\r\n" +             //Rename return station name field so that it is unique
+            $"departurestation.name AS {DepartureStationName}, " +         //Rename departure station name field so that it is unique
+            $"returnstation.name AS {ReturnStationName}\r\n" +             //Rename return station name field so that it is unique
             "FROM `biketrips`\r\n" +
-            "LEFT JOIN bikestations AS departurestation ON biketrips.departurestationid = departurestation.id\r\n" +//Join departure station using renamed field
-            "LEFT JOIN bikestations AS returnstation ON biketrips.returnstationid = returnstation.id\r\n" +         //Join return station using renamed field
+            $"LEFT JOIN bikestations AS departurestation ON biketrips.{DepartureStationID} = departurestation.id\r\n" +//Join departure station using renamed field
+            $"LEFT JOIN bikestations AS returnstation ON biketrips.{DepartureStationID} = returnstation.id\r\n" +         //Join return station using renamed field
             "LIMIT 0 , 30";                                             //Limit to 30 elements
 
         //Column names of biketrips table.
@@ -31,6 +31,20 @@ namespace ApiServer.Tools
         public const string Duration = "Duration";
         public const string DepartureStationName = "DepartureStationName";
         public const string ReturnStationName = "ReturnStationName";
+
+        public static string BuildBikeTripsFromStationQuery(int stationID)
+        {
+            //This will be built every time the method is called. The compiler might reduce the concatenation amounts a bit.
+            return
+            "SELECT biketrips . * , " +                                 //Select bike trips
+            $"departurestation.name AS {DepartureStationName}, " +         //Rename departure station name field so that it is unique
+            $"returnstation.name AS {ReturnStationName}\r\n" +             //Rename return station name field so that it is unique
+            "FROM `biketrips`\r\n" + 
+            $"LEFT JOIN bikestations AS departurestation ON biketrips.{DepartureStationID} = departurestation.id\r\n" +//Join departure station using renamed field
+            $"LEFT JOIN bikestations AS returnstation ON biketrips.{ReturnStationID} = returnstation.id\r\n" +         //Join return station using renamed field
+            $"WHERE {DepartureStationID} = {stationID} OR {ReturnStationID} = {stationID}\r\n" +    //Select only trips that come from or end at this station.
+            "LIMIT 0 , 30";
+        }
     }
 
     public static class BikeStationTableStrings

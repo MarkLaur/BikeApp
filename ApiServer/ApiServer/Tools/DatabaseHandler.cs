@@ -55,7 +55,7 @@ namespace ApiServer.Tools
             }
         }
 
-        public static IEnumerable<BikeTrip> GetTrips()
+        private static IEnumerable<BikeTrip> GetTrips(string query)
         {
             using (MySqlConnection conn = new MySqlConnection(connectionString))
             {
@@ -65,7 +65,7 @@ namespace ApiServer.Tools
 
                 using (MySqlCommand cmd = conn.CreateCommand())
                 {
-                    cmd.CommandText = BikeTripTableStrings.BikeTripQueryWithStationNames;
+                    cmd.CommandText = query;
                     using (MySqlDataReader reader = cmd.ExecuteReader())
                     {
                         //TODO: check if all needed columns exist
@@ -93,6 +93,16 @@ namespace ApiServer.Tools
 
                 return tripList;
             }
+        }
+
+        public static IEnumerable<BikeTrip> GetTrips()
+        {
+            return GetTrips(BikeTripTableStrings.BikeTripQueryWithStationNames);
+        }
+
+        public static IEnumerable<BikeTrip> GetTripsFromStation(int stationID)
+        {
+            return GetTrips(BikeTripTableStrings.BuildBikeTripsFromStationQuery(stationID));
         }
 
         public static IEnumerable<Station> GetStations()
