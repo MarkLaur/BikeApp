@@ -7,11 +7,10 @@ namespace WebApp.Models
     [System.Serializable]
     public struct Station
     {
-        //[JsonPropertyName("id")]
         public int ID { get; private set; }
-        //[JsonPropertyName("name")]
         public string Name { get; private set; }
 
+        [JsonConstructor] //JsonSerializer can't serialize struct by default so the constructor has to be marked with this.
         public Station(int id, string name)
         {
             ID = id;

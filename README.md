@@ -9,7 +9,7 @@ Database implemented with usbwebserver: only table export in git repo, user will
 
 # TODO
 Figure out how to send page to client early without data and do api requests late.
-Bike stations api
+All db fields to bike station api and page
 Single station page with the station's trips listed
 
 #Installation instructions
