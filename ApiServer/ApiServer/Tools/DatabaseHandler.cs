@@ -79,8 +79,10 @@ namespace ApiServer.Tools
                                 reader.GetInt32(BikeTripTableStrings.ID),
                                 reader.GetDateTime(BikeTripTableStrings.Departure),
                                 reader.GetDateTime(BikeTripTableStrings.Return),
-                                new Station(reader.GetInt32(BikeTripTableStrings.DepartureStationID), reader.GetString(BikeTripTableStrings.DepartureStationName)),
-                                new Station(reader.GetInt32(BikeTripTableStrings.ReturnStationID), reader.GetString(BikeTripTableStrings.ReturnStationName)),
+                                reader.GetInt32(BikeTripTableStrings.DepartureStationID),
+                                reader.GetString(BikeTripTableStrings.DepartureStationName),
+                                reader.GetInt32(BikeTripTableStrings.ReturnStationID),
+                                reader.GetString(BikeTripTableStrings.ReturnStationName),
                                 reader.GetInt32(BikeTripTableStrings.Distance),
                                 new TimeSpan(0, 0, reader.GetInt32(BikeTripTableStrings.Duration))
                                 ));
@@ -115,7 +117,17 @@ namespace ApiServer.Tools
                             //Create a new Station with data from query and add it to trip list
                             stationList.Add(new Station(
                                 reader.GetInt32(BikeStationTableStrings.Columns.ID),
-                                reader.GetString(BikeStationTableStrings.Columns.Name)
+                                reader.GetString(BikeStationTableStrings.Columns.NameFin),
+                                reader.GetString(BikeStationTableStrings.Columns.NameSwe),
+                                reader.GetString(BikeStationTableStrings.Columns.Name),
+                                reader.GetString(BikeStationTableStrings.Columns.AddressFin),
+                                reader.GetString(BikeStationTableStrings.Columns.AddressSwe),
+                                reader.GetString(BikeStationTableStrings.Columns.CityFin),
+                                reader.GetString(BikeStationTableStrings.Columns.CitySwe),
+                                reader.GetString(BikeStationTableStrings.Columns.Operator),
+                                reader.GetString(BikeStationTableStrings.Columns.Capacity),
+                                reader.GetDecimal(BikeStationTableStrings.Columns.PosX),
+                                reader.GetDecimal(BikeStationTableStrings.Columns.PosY)
                                 ));
                         }
                     }

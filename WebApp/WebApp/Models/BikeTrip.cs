@@ -11,12 +11,10 @@ namespace WebApp.Models
         public int ID { get; private set; }
         public DateTime DepartureTime { get; private set; }
         public DateTime ReturnTime { get; private set; }
-
-        //[JsonPropertyName("departureStation")]
-        public Station DepartureStation { get; private set; }
-        //[JsonPropertyName("returnStation")]
-        public Station ReturnStation { get; private set; }
-
+        public int DepartureStationID { get; private set; }
+        public string DepartureStationName { get; private set; }
+        public int ReturnStationID { get; private set; }
+        public string ReturnStationName { get; private set; }
         /// <summary>
         /// The trip's distance in meters.
         /// </summary>
@@ -29,16 +27,20 @@ namespace WebApp.Models
             int id,
             DateTime departureTime,
             DateTime returnTime,
-            Station departureStation,
-            Station returnStation,
+            int departureStationID,
+            string departureStationName,
+            int returnStationID,
+            string returnStationName,
             int distance,
             TimeSpan duration)
         {
             ID = id;
             DepartureTime = departureTime;
             ReturnTime = returnTime;
-            DepartureStation = departureStation;
-            ReturnStation = returnStation;
+            DepartureStationID = departureStationID;
+            DepartureStationName = departureStationName;
+            ReturnStationID = returnStationID;
+            ReturnStationName = returnStationName;
             Distance = distance;
             Duration = duration;
         }
