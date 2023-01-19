@@ -24,8 +24,8 @@ namespace ApiServer.Tools
 
     public static class DatabaseHandler
     {
-        //TODO: change default password and user
-        private const string connectionString = "Server=localhost; Port=3307; Database=bikeapp; Uid=root; Pwd=usbw;";
+        //TODO: create a user for database read and update only
+        private const string connectionString = "Server=localhost; Port=3307; Database=bikeapp; Uid=root; Pwd=BikeAppUsbwpw;";
         private const string uswbDefaultConnectionString = "Server=localhost; Port=3307; Database=test; Uid=root; Pwd=usbw;";
 
         public static DBConnectionTestResult TestConnection()
@@ -45,6 +45,7 @@ namespace ApiServer.Tools
                 try
                 {
                     conn.ConnectionString = uswbDefaultConnectionString;
+                    conn.Open();
                     return DBConnectionTestResult.DefaultConnectionSuccess;
                 }
                 catch { }
