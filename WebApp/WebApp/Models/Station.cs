@@ -6,7 +6,9 @@ namespace WebApp.Models
     //reference comparisons don't break. I might turn this into a class and make a station dictionary or something at some point.
     public struct Station
     {
-        public int ID { get; private set; }
+        //public bool Valid => ID != -1;
+
+        public int ID { get; private set; } = -1; //Default to invalid value, this is set to a valid value in constructor
         /// <summary>
         /// Finnish name
         /// </summary>

@@ -21,32 +21,109 @@ namespace WebApp.Pages
         /// Contains station data if ErrorMessage isn't null.
         /// </summary>
 
-        public int? SearchedStation { get; private set; }
-        public IEnumerable<BikeTrip> StationTrips { get; private set; }
+        public int? SearchedStationID { get; private set; }
+        public Station? SearchedStation { get; private set; }
+        public IEnumerable<BikeTrip>? StationTrips { get; private set; }
 
         public StationSearchModel(ILogger<IndexModel> logger, ApiService apiService)
         {
             _logger = logger;
 
             _apiService = apiService;
-            StationTrips = new BikeTrip[0];
+            SearchedStation = null;
+            StationTrips = null;
         }
 
         public void OnGet([FromQuery] int? stationID)
         {
-            SearchedStation = stationID;
+            SearchedStationID = stationID;
 
             if(!stationID.HasValue)
             {
                 return;
             }
 
-            string json;
-            Uri stationUri = ApiDefinitions.BuildStationInfoUri(stationID.Value);
+            //TODO: Do queries on client side using AJAX
 
             //TODO: get searched station info
+            if(TryGetStation(stationID.Value, out Station tempStation, out string stationError))
+            {
+                SearchedStation = tempStation;
+            }
 
-            //TODO: Do query on client side using AJAX
+            if(TryGetBikeTrips(stationID.Value, out IEnumerable<BikeTrip>? tripsTemp, out string tripsError)
+                && tripsTemp != null)
+            {
+                StationTrips = tripsTemp;
+            }
+
+            if(!string.IsNullOrWhiteSpace(stationError) || !string.IsNullOrWhiteSpace(tripsError))
+            {
+                ErrorMessage = stationError + " " + tripsError;
+            }
+            else
+            {
+                ErrorMessage = null;
+            }
+        }
+
+        private bool TryGetStation(int stationID, out Station station, out string userErrorMessage)
+        {
+            userErrorMessage = "";
+            string json;
+
+            try
+            {
+                //TODO: this probably blocks the thread really bad, fix this
+                Task<string?> task = _apiService.TryGetStationJson(stationID);
+                string? result = task.Result;
+
+                if(result != null)
+                {
+                    json = result;
+                }
+                else
+                {
+                    userErrorMessage = $"Station {stationID} cannot be found";
+                    station = default;
+                    return false;
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError("Bike trips api request failed");
+
+                userErrorMessage = "Failed to get Station json: " + ex.Message;
+                station = default;
+                return false;
+            }
+
+            station = JsonSerializer.Deserialize<Station>(json,
+            new JsonSerializerOptions
+            {
+                PropertyNameCaseInsensitive = true
+            });
+
+            //TODO: Figure out if deserialization can fail and how to test it.
+            /*
+            //Set empty array and return if deserialization failed
+            if (!station.Valid)
+            {
+                userErrorMessage = "Bike trip deserialization failed";
+                _logger.LogError(userErrorMessage);
+                return false;
+            }
+            */
+
+            return true;
+        }
+
+        private bool TryGetBikeTrips(int stationID, out IEnumerable<BikeTrip>? trips, out string userErrorMessage)
+        {
+            userErrorMessage = "";
+            string json;
+            Uri stationUri = ApiDefinitions.BuildStationInfoUri(stationID);
+
             try
             {
                 //TODO: this probably blocks the thread really bad, fix this
@@ -57,11 +134,12 @@ namespace WebApp.Pages
             {
                 _logger.LogError("Bike trips api request failed");
 
-                ErrorMessage = "Failed to get json" + ex.Message;
-                return;
+                userErrorMessage = "Failed to get BikeTrips json: " + ex.Message;
+                trips = null;
+                return false;
             }
 
-            IEnumerable<BikeTrip>? trips = JsonSerializer.Deserialize<BikeTrip[]>(json,
+            trips = JsonSerializer.Deserialize<BikeTrip[]>(json,
             new JsonSerializerOptions
             {
                 PropertyNameCaseInsensitive = true
@@ -70,13 +148,12 @@ namespace WebApp.Pages
             //Set empty array and return if deserialization failed
             if (trips == null)
             {
-                //Bike trips should be an empty array already so no need to re-create it
-                ErrorMessage = "Bike trip deserialization failed";
-                _logger.LogError(ErrorMessage);
-                return;
+                userErrorMessage = "Bike trip deserialization failed";
+                _logger.LogError(userErrorMessage);
+                return false;
             }
 
-            StationTrips = trips;
+            return true;
         }
     }
 }

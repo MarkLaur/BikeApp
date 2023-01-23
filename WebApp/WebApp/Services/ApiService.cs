@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.SignalR.Protocol;
+using Microsoft.Extensions.Primitives;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
@@ -58,6 +59,33 @@ namespace WebApp.Services
 
             string json = await response.Content.ReadAsStringAsync();
             return json;
+        }
+
+        /// <summary>
+        /// Tries to find station with given id from api. Returns null if station cannot be found.
+        /// </summary>
+        /// <param name="stationID"></param>
+        /// <returns></returns>
+        /// <exception cref="BadHttpRequestException"></exception>
+        public async Task<string?> TryGetStationJson(int stationID)
+        {
+            //Perform api request
+            HttpResponseMessage response = await client.GetAsync(ApiDefinitions.BuildBikeStationUri(stationID));
+            if (!response.IsSuccessStatusCode)
+            {
+                throw new BadHttpRequestException($"Couldn't get data from api. ({response.StatusCode})");
+            }
+
+            if (response.Headers.TryGetValues("StationFound", out IEnumerable<string>? values)
+                && values != null && values.First() == "true")
+            {
+                string json = await response.Content.ReadAsStringAsync();
+                return json;
+            }
+            else
+            {
+                return null;
+            }
         }
         #endregion
     }

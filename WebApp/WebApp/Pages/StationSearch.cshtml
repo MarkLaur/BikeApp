@@ -7,24 +7,30 @@
 
 <h2>Station Search</h2>
 
+<!-- //TODO: allow user to search by station name -->
+<!-- //TODO: block special character and text input -->
+<form action="@Request.Path">
+    <input type="number" min="0" step="1" value="@Model.SearchedStationID" id="stationID" name="stationID" placeholder="enter station id" />
+    <input type="submit" value="Search" />
+</form>
+
 @if (Model.ErrorMessage != null)
 {
     <p>@Model.ErrorMessage</p>
 }
 else
 {
-    //TODO: allow user to search by station name
-    //TODO: block special character and text input
-    <form action="@Request.Path">
-        <input type="number" min="0" step="1" value="@Model.SearchedStation" id="stationID" name="stationID" placeholder="enter station id" />
-        <input type="submit" value="Search"/>
-    </form>
-
-    @if (Model.SearchedStation.HasValue)
+    @if (Model.SearchedStationID.HasValue)
     {
         //TODO: fetch data on client side
         //TODO: fetch the searched station
-        <component type="typeof(Components.BikeStationsTable)" render-mode="Static" param-BikeStations="@new Station[0]" />
+
+        //Check if station was found and spawn station component if it isnt
+        if(Model.SearchedStation is Station station)
+        {
+            Station[] stations = new Station[] { station };
+            <component type="typeof(Components.BikeStationsTable)" render-mode="Static" param-BikeStations="@stations" />
+        }
 
         <component type="typeof(Components.BikeTripsTable)" render-mode="Static" param-BikeTrips="@Model.StationTrips" />
     }
