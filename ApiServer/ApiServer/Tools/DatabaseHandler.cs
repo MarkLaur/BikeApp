@@ -126,25 +126,42 @@ namespace ApiServer.Tools
                             //We don't have any nullable columns so null check shouldn't be needed.
 
                             //Create a new Station with data from query and add it to trip list
-                            stationList.Add(new Station(
-                                reader.GetInt32(BikeStationTableStrings.Columns.ID),
-                                reader.GetString(BikeStationTableStrings.Columns.NameFin),
-                                reader.GetString(BikeStationTableStrings.Columns.NameSwe),
-                                reader.GetString(BikeStationTableStrings.Columns.Name),
-                                reader.GetString(BikeStationTableStrings.Columns.AddressFin),
-                                reader.GetString(BikeStationTableStrings.Columns.AddressSwe),
-                                reader.GetString(BikeStationTableStrings.Columns.CityFin),
-                                reader.GetString(BikeStationTableStrings.Columns.CitySwe),
-                                reader.GetString(BikeStationTableStrings.Columns.Operator),
-                                reader.GetString(BikeStationTableStrings.Columns.Capacity),
-                                reader.GetDecimal(BikeStationTableStrings.Columns.PosX),
-                                reader.GetDecimal(BikeStationTableStrings.Columns.PosY)
-                                ));
+                            stationList.Add(new Station(reader));
                         }
                     }
                 }
 
                 return stationList;
+            }
+        }
+
+        public static bool TryGetStation(int stationID, out Station station)
+        {
+            using (MySqlConnection conn = new MySqlConnection(connectionString))
+            {
+                conn.Open();
+
+                using (MySqlCommand cmd = conn.CreateCommand())
+                {
+                    cmd.CommandText = BikeStationTableStrings.BuildBikeStationQuery(stationID);
+                    using (MySqlDataReader reader = cmd.ExecuteReader())
+                    {
+                        //TODO: check if all needed columns exist
+                        
+                        //Read() return false when end of query is reached
+                        if (reader.Read())
+                        {
+                            //We don't have any nullable columns so null check shouldn't be needed.
+                            station = new Station(reader);
+                            return true;
+                        }
+                        else
+                        {
+                            station = default;
+                            return false;
+                        }
+                    }
+                }
             }
         }
     }

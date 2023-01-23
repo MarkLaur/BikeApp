@@ -49,11 +49,6 @@ namespace ApiServer.Tools
 
     public static class BikeStationTableStrings
     {
-        public const string GetBikeStationsQuery =
-            "SELECT bikestations . * " +
-            "FROM `bikestations`\r\n" +
-            "LIMIT 0 , 30";
-
         /// <summary>
         /// Contains name strings of table columns.
         /// </summary>
@@ -71,6 +66,19 @@ namespace ApiServer.Tools
             public const string Capacity = "Capacity";
             public const string PosX = "PosX";
             public const string PosY = "PosY";
+        }
+
+        public const string GetBikeStationsQuery =
+            "SELECT bikestations . * " +
+            "FROM `bikestations`\r\n" +
+            "LIMIT 0 , 30";
+
+        public static string BuildBikeStationQuery(int stationID)
+        {
+            return
+                "SELECT * FROM `bikestations`\r\n" +
+                $"WHERE {Columns.ID} = {stationID}\r\n" +
+                "LIMIT 0 , 5"; //Limit max rows just in case
         }
     }
 }
