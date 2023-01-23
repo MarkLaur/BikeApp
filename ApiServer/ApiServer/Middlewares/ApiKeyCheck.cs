@@ -7,14 +7,18 @@ namespace ApiServer.Middlewares
 {
     /// <summary>
     /// Checks if the apiKey value is set correctly in the header.
-    /// We don't and wont have personal authentication for this app.
-    /// We just check a global apiKey here.
+    /// These keys are hardcoded and platform specific and allow us to, for example, kill our android app or old versions of the app.
     /// </summary>
     public class ApiKeyCheck
     {
-        private readonly RequestDelegate _next;
+        //List of defined api keys
+        private static readonly IEnumerable<string> APIKEYS = new HashSet<string>
+        {
+            "1111", //Web app key
+            "2222"  //Android app key
+        };
 
-        private const string APIKEY = "1111";
+        private readonly RequestDelegate _next;
 
         public ApiKeyCheck(RequestDelegate next)
         {
@@ -24,14 +28,14 @@ namespace ApiServer.Middlewares
         public Task Invoke(HttpContext httpContext)
         {
             //Check if api key value is included in the header
-            if(!httpContext.Request.Headers.TryGetValue("apiKey", out StringValues apiKeyHeader))
+            if (!httpContext.Request.Headers.TryGetValue("apiKey", out StringValues apiKeyHeaders))
             {
                 httpContext.Response.StatusCode = StatusCodes.Status401Unauthorized;
                 return httpContext.Response.WriteAsync("apiKey missing");
             }
 
             //Check if api key matches
-            if(apiKeyHeader != APIKEY)
+            if (!APIKEYS.Contains(apiKeyHeaders.First()))
             {
                 httpContext.Response.StatusCode = StatusCodes.Status401Unauthorized;
                 return httpContext.Response.WriteAsync("Unauthorized client");
