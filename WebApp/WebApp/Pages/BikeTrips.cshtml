@@ -8,37 +8,10 @@
 
 @if (Model.ErrorMessage != null)
 {
-        <p>@Model.ErrorMessage</p>
+    <p>@Model.ErrorMessage</p>
 }
 else
-{ 
-    <table>
-    <tr>
-        <th>Journey</th>
-        <th>Departure time</th>
-        <th>Return time</th>
-        <th>Departure Station</th>
-        <th>Return Station</th>
-        <th>Duration</th>
-        <th>Distance</th>
-    </tr>
-
-    @foreach (Models.BikeTrip trip in Model.BikeTrips)
-    {
-        //Distance and duration need some custom formatting
-        string durationMessage = $"{trip.Duration.Minutes}m {trip.Duration.Seconds}s";
-        string distanceMessage = $"{(trip.Distance / 1000f).ToString("0.00")} km";
-
-        <tr>
-            <td>@trip.ID</td>
-            <td>@trip.DepartureTime</td>
-            <td>@trip.ReturnTime</td>
-            <td>@trip.DepartureStationName</td>
-            <td>@trip.ReturnStationName</td>
-            <td>@durationMessage</td>
-            <td>@distanceMessage</td>
-        </tr>
-    }
-
-    </table>
+{
+    //TODO: fetch data on client side
+    <component type="typeof(Components.BikeTripsTable)" render-mode="Static" param-BikeTrips="@Model.BikeTrips"/>
 }

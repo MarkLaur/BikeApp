@@ -1,4 +1,5 @@
 ﻿@page
+@using WebApp.Models;
 @model WebApp.Pages.StationSearchModel
 @{
     ViewData["Title"] = "Station Search";
@@ -22,43 +23,9 @@ else
     @if (Model.SearchedStation.HasValue)
     {
         //TODO: fetch data on client side
-        <p>Station data here: @Model.SearchedStation</p>
+        //TODO: fetch the searched station
+        <component type="typeof(Components.BikeStationsTable)" render-mode="Static" param-BikeStations="@new Station[0]" />
 
-        @if (!Model.StationTrips.Any())
-        {
-            <p>No trips found</p>
-        }
-        else
-        {
-            <table>
-                <tr>
-                    <th>Journey</th>
-                    <th>Departure time</th>
-                    <th>Return time</th>
-                    <th>Departure Station</th>
-                    <th>Return Station</th>
-                    <th>Duration</th>
-                    <th>Distance</th>
-                </tr>
-
-                @foreach (Models.BikeTrip trip in Model.StationTrips)
-                {
-                    //Distance and duration need some custom formatting
-                    string durationMessage = $"{trip.Duration.Minutes}m {trip.Duration.Seconds}s";
-                    string distanceMessage = $"{(trip.Distance / 1000f).ToString("0.00")} km";
-
-                    <tr>
-                        <td>@trip.ID</td>
-                        <td>@trip.DepartureTime</td>
-                        <td>@trip.ReturnTime</td>
-                        <td>@trip.DepartureStationName</td>
-                        <td>@trip.ReturnStationName</td>
-                        <td>@durationMessage</td>
-                        <td>@distanceMessage</td>
-                    </tr>
-                }
-
-            </table>
-        }
+        <component type="typeof(Components.BikeTripsTable)" render-mode="Static" param-BikeTrips="@Model.StationTrips" />
     }
 }

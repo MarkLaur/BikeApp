@@ -1,7 +1,7 @@
 ﻿@page
 @model WebApp.Pages.BikeStationsModel
 @{
-    ViewData["Title"] = "Bike Trips";
+    ViewData["Title"] = "Bike Stations";
 }
 
 <h2>List of bike stations</h2>
@@ -12,37 +12,6 @@
 }
 else
 {
-    <table>
-        <tr>
-            <th>Station ID</th>
-            <th>Nimi</th>
-            <th>Namn</th>
-            <th>Name</th>
-            <th>Osoite</th>
-            <th>Adress</th>
-            <th>Kaupunki</th>
-            <th>Stad</th>
-            <th>Operator</th>
-            <th>Capacity</th>
-            <th>X</th>
-            <th>Y</th>
-        </tr>
-    @foreach (Models.Station station in Model.BikeStations)
-    {
-        <tr>
-            <td>@station.ID</td>
-            <td>@station.NameFin</td>
-            <td>@station.NameSwe</td>
-            <td>@station.Name</td>
-            <td>@station.AddressFin</td>
-            <td>@station.AddressSwe</td>
-            <td>@station.CityFin</td>
-            <td>@station.CitySwe</td>
-            <td>@station.OperatorName</td>
-            <td>@station.Capacity</td>
-            <td>@station.PosX</td>
-            <td>@station.PosY</td>
-        </tr>
-    }
-    </table>
+    //TODO: fetch data on client side
+    <component type="typeof(Components.BikeStationsTable)" render-mode="Static" param-BikeStations="@Model.BikeStations" />
 }
