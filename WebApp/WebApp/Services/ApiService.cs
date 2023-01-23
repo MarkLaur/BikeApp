@@ -10,7 +10,6 @@ using System.Net.Http.Headers;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Threading.Tasks;
-using WebApp.Models;
 
 namespace WebApp.Services
 {
@@ -54,7 +53,7 @@ namespace WebApp.Services
             HttpResponseMessage response = await client.GetAsync(uri);
             if (!response.IsSuccessStatusCode)
             {
-                throw new BadHttpRequestException("Couldn't get data from api.");
+                throw new BadHttpRequestException($"Couldn't get data from api. ({response.StatusCode})");
             }
 
             string json = await response.Content.ReadAsStringAsync();

@@ -35,9 +35,9 @@ namespace WebApp.Pages
 
             string json;
 
+            //TODO: Do query on client side using AJAX
             try
             {
-                //TODO: this probably blocks the thread really bad, fix this
                 Task<string> task = _apiService.GetJson(ApiDefinitions.BikeTripsUri);
                 json = task.Result;
             }

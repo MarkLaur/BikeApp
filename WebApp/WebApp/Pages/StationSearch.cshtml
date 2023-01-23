@@ -1,0 +1,64 @@
+﻿@page
+@model WebApp.Pages.StationSearchModel
+@{
+    ViewData["Title"] = "Station Search";
+}
+
+<h2>Station Search</h2>
+
+@if (Model.ErrorMessage != null)
+{
+    <p>@Model.ErrorMessage</p>
+}
+else
+{
+    //TODO: allow user to search by station name
+    //TODO: block special character and text input
+    <form action="@Request.Path">
+        <input type="number" min="0" step="1" value="@Model.SearchedStation" id="stationID" name="stationID" placeholder="enter station id" />
+        <input type="submit" value="Search"/>
+    </form>
+
+    @if (Model.SearchedStation.HasValue)
+    {
+        //TODO: fetch data on client side
+        <p>Station data here: @Model.SearchedStation</p>
+
+        @if (!Model.StationTrips.Any())
+        {
+            <p>No trips found</p>
+        }
+        else
+        {
+            <table>
+                <tr>
+                    <th>Journey</th>
+                    <th>Departure time</th>
+                    <th>Return time</th>
+                    <th>Departure Station</th>
+                    <th>Return Station</th>
+                    <th>Duration</th>
+                    <th>Distance</th>
+                </tr>
+
+                @foreach (Models.BikeTrip trip in Model.StationTrips)
+                {
+                    //Distance and duration need some custom formatting
+                    string durationMessage = $"{trip.Duration.Minutes}m {trip.Duration.Seconds}s";
+                    string distanceMessage = $"{(trip.Distance / 1000f).ToString("0.00")} km";
+
+                    <tr>
+                        <td>@trip.ID</td>
+                        <td>@trip.DepartureTime</td>
+                        <td>@trip.ReturnTime</td>
+                        <td>@trip.DepartureStationName</td>
+                        <td>@trip.ReturnStationName</td>
+                        <td>@durationMessage</td>
+                        <td>@distanceMessage</td>
+                    </tr>
+                }
+
+            </table>
+        }
+    }
+}

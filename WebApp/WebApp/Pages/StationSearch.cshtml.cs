@@ -1,12 +1,13 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using System.Runtime.CompilerServices;
 using System.Text.Json;
 using WebApp.Models;
 using WebApp.Services;
 
 namespace WebApp.Pages
 {
-    public class BikeStationsModel : PageModel
+    public class StationSearchModel : PageModel
     {
         private readonly ILogger<IndexModel> _logger;
 
@@ -19,52 +20,63 @@ namespace WebApp.Pages
         /// <summary>
         /// Contains station data if ErrorMessage isn't null.
         /// </summary>
-        public IEnumerable<Station> BikeStations { get; private set; }
 
-        public BikeStationsModel(ILogger<IndexModel> logger, ApiService apiService)
+        public int? SearchedStation { get; private set; }
+        public IEnumerable<BikeTrip> StationTrips { get; private set; }
+
+        public StationSearchModel(ILogger<IndexModel> logger, ApiService apiService)
         {
             _logger = logger;
 
             _apiService = apiService;
-            BikeStations = new Station[0];
+            StationTrips = new BikeTrip[0];
         }
 
-        public void OnGet()
+        public void OnGet([FromQuery] int? stationID)
         {
-            //TODO: implement pagination
+            SearchedStation = stationID;
+
+            if(!stationID.HasValue)
+            {
+                return;
+            }
 
             string json;
+            Uri stationUri = ApiDefinitions.BuildStationInfoUri(stationID.Value);
+
+            //TODO: get searched station info
 
             //TODO: Do query on client side using AJAX
             try
             {
-                Task<string> task = _apiService.GetJson(ApiDefinitions.BikeStationsUri);
+                //TODO: this probably blocks the thread really bad, fix this
+                Task<string> task = _apiService.GetJson(stationUri);
                 json = task.Result;
             }
             catch (Exception ex)
             {
-                _logger.LogError("Bike station api request failed");
+                _logger.LogError("Bike trips api request failed");
 
-                ErrorMessage = ex.Message;
+                ErrorMessage = "Failed to get json" + ex.Message;
                 return;
             }
 
-            IEnumerable<Station>? stations = JsonSerializer.Deserialize<Station[]>(json,
+            IEnumerable<BikeTrip>? trips = JsonSerializer.Deserialize<BikeTrip[]>(json,
             new JsonSerializerOptions
             {
                 PropertyNameCaseInsensitive = true
             });
 
             //Set empty array and return if deserialization failed
-            if (stations == null)
+            if (trips == null)
             {
                 //Bike trips should be an empty array already so no need to re-create it
-                ErrorMessage = "Bike station deserialization failed";
+                ErrorMessage = "Bike trip deserialization failed";
                 _logger.LogError(ErrorMessage);
                 return;
             }
 
-            BikeStations = stations;
+            StationTrips = trips;
         }
     }
 }

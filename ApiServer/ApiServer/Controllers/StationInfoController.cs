@@ -6,7 +6,7 @@ using System.Net;
 namespace ApiServer.Controllers
 {
     [ApiController]
-    [Route("[controller]")]
+    [Route("[controller]/{stationID}")]
     public class StationInfoController : ControllerBase
     {
         private readonly ILogger<BikeTripsController> _logger;
@@ -17,7 +17,7 @@ namespace ApiServer.Controllers
         }
 
         [HttpGet(Name = "GetStationInfo")]
-        public ActionResult<IEnumerable<BikeTrip>> Get([FromQuery] int stationID)
+        public ActionResult<IEnumerable<BikeTrip>> Get([FromRoute] int stationID)
         {
             try
             {
