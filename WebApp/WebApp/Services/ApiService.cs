@@ -11,6 +11,8 @@ using System.Net.Http.Headers;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Threading.Tasks;
+using WebApp.Models;
+using WebApp.Pages;
 
 namespace WebApp.Services
 {
@@ -93,6 +95,11 @@ namespace WebApp.Services
             {
                 return null;
             }
+        }
+
+        public async Task<HttpResponse> UploadStations(IEnumerable<Station> stations)
+        {
+            throw new NotImplementedException();
         }
         #endregion
     }

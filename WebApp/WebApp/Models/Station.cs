@@ -26,7 +26,7 @@ namespace WebApp.Models
         public string CityFin { get; private set; }
         public string CitySwe { get; private set; }
         public string OperatorName { get; private set; }
-        public string Capacity { get; private set; }
+        public int Capacity { get; private set; }
         public decimal PosX { get; private set; }
         public decimal PosY { get; private set; }
 
@@ -41,7 +41,7 @@ namespace WebApp.Models
             string cityFin,
             string citySwe,
             string operatorName,
-            string capacity,
+            int capacity,
             decimal posX,
             decimal posY
             )

@@ -1,0 +1,15 @@
+﻿@page
+@using WebApp.Models;
+@model WebApp.Pages.ImportDataModel
+@{
+    ViewData["Title"] = "Import Data";
+}
+
+<h2>Import Data</h2>
+
+<form enctype="multipart/form-data" method="post">
+    <input type="file" name="file" class="form-control mb-3">
+    <button type="submit" class="btn btn-primary mb-3">Upload</button>
+</form>
+
+<p>File length: @Model.Message</p>

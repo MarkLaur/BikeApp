@@ -26,7 +26,7 @@ namespace ApiServer.Models
         public string CityFin { get; private set; }
         public string CitySwe { get; private set; }
         public string OperatorName { get; private set; }
-        public string Capacity { get; private set; }
+        public int Capacity { get; private set; }
         public decimal PosX { get; private set; }
         public decimal PosY { get; private set; }
 
@@ -41,7 +41,7 @@ namespace ApiServer.Models
             string cityFin,
             string citySwe,
             string operatorName,
-            string capacity,
+            int capacity,
             decimal posX,
             decimal posY
             )
@@ -77,7 +77,7 @@ namespace ApiServer.Models
                 reader.GetString(BikeStationTableStrings.Columns.CityFin),
                 reader.GetString(BikeStationTableStrings.Columns.CitySwe),
                 reader.GetString(BikeStationTableStrings.Columns.Operator),
-                reader.GetString(BikeStationTableStrings.Columns.Capacity),
+                reader.GetInt32(BikeStationTableStrings.Columns.Capacity),
                 reader.GetDecimal(BikeStationTableStrings.Columns.PosX),
                 reader.GetDecimal(BikeStationTableStrings.Columns.PosY)
                 )
