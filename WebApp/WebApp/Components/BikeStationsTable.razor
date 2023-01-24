@@ -1,5 +1,6 @@
 ﻿@using WebApp.Models;
 
+<!-- This component renders a table of stations -->
 @if(BikeStations == null || !BikeStations.Any())
 {
     <p>No stations</p>
@@ -44,5 +45,5 @@ else
 
 @code {
     [Parameter]
-    public IEnumerable<Station> BikeStations { get; set; }
+    public IEnumerable<Station> BikeStations { get; set; } = new Station[0];
 }

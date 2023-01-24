@@ -1,6 +1,7 @@
 ﻿@using WebApp.Models
 @using WebApp.Services
 
+<!-- This component renders a table of bike trips -->
 @if(BikeTrips == null || !BikeTrips.Any())
 {
     <p>No bike trips</p>
@@ -39,5 +40,5 @@ else
 
 @code {
     [Parameter]
-    public IEnumerable<BikeTrip> BikeTrips { get; set; }
+    public IEnumerable<BikeTrip> BikeTrips { get; set; } = new BikeTrip[0];
 }
