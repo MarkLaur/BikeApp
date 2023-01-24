@@ -1,6 +1,7 @@
 ﻿using ApiServer.Controllers;
 using ApiServer.Models;
 using MySql.Data.MySqlClient;
+using MySqlX.XDevAPI;
 using System.Data;
 using System.Diagnostics;
 
@@ -105,6 +106,10 @@ namespace ApiServer.Tools
             return GetTrips(BikeTripTableStrings.BuildBikeTripsFromStationQuery(stationID));
         }
 
+        /// <summary>
+        /// Gets stations from database
+        /// </summary>
+        /// <returns></returns>
         public static IEnumerable<Station> GetStations()
         {
             using (MySqlConnection conn = new MySqlConnection(connectionString))
@@ -115,7 +120,7 @@ namespace ApiServer.Tools
 
                 using (MySqlCommand cmd = conn.CreateCommand())
                 {
-                    cmd.CommandText = BikeStationTableStrings.GetBikeStationsQuery;
+                    cmd.CommandText = BikeStations.GetBikeStationsQuery;
                     using (MySqlDataReader reader = cmd.ExecuteReader())
                     {
                         //TODO: check if all needed columns exist
@@ -135,6 +140,61 @@ namespace ApiServer.Tools
             }
         }
 
+        /// <summary>
+        /// Puts stations into database
+        /// </summary>
+        /// <param name="stations"></param>
+        /// <exception cref="NotImplementedException"></exception>
+        public static void PutStations(IEnumerable<Station> stations)
+        {
+            //DataTable stationsTable = BuildStationsTable(stations);
+
+            using (MySqlConnection conn = new MySqlConnection(connectionString))
+            {
+                conn.Open();
+
+                using (MySqlCommand cmd = conn.CreateCommand())
+                using (MySqlDataAdapter adapter = new MySqlDataAdapter(cmd))
+                //using (MySqlCommandBuilder builder = new MySqlCommandBuilder(adapter))
+                //using (MySqlTransaction tran = conn.BeginTransaction(IsolationLevel.Serializable))
+                {
+                    //TODO: add all values it insert statement
+                    cmd.CommandText = BikeStations.InsertBikeStationQuery;
+
+                    //TODO: Batch inserts together somehow
+
+                    foreach (Station station in stations)
+                    {
+                        //AddWithValue() should sanitize inputs by escaping all dangerous characters.
+                        cmd.Parameters.Clear();
+
+                        cmd.Parameters.AddWithValue("@id", station.ID);
+                        cmd.Parameters.AddWithValue("@namefin", station.NameFin);
+                        cmd.Parameters.AddWithValue("@name", station.Name);
+
+                        cmd.ExecuteNonQuery();
+                    }
+                    /*
+                    builder.SetAllValues = true;
+
+                    builder.GetInsertCommand();
+                    builder.GetUpdateCommand();
+                    builder.GetDeleteCommand();
+                    adapter.UpdateBatchSize = 1000;
+                    adapter.ContinueUpdateOnError = true;
+                    return adapter.Update(stationsTable);
+                    */
+
+                    //TODO: make sure query is sanitized
+
+                    //TODO: sanitize station strings
+                    //TODO: put data into database
+                    // cmd.ExecuteNonQuery();
+                    //tran.Commit();
+                }
+            }
+        }
+
         public static bool TryGetStation(int stationID, out Station station)
         {
             using (MySqlConnection conn = new MySqlConnection(connectionString))
@@ -143,7 +203,7 @@ namespace ApiServer.Tools
 
                 using (MySqlCommand cmd = conn.CreateCommand())
                 {
-                    cmd.CommandText = BikeStationTableStrings.BuildBikeStationQuery(stationID);
+                    cmd.CommandText = BikeStations.BuildBikeStationQuery(stationID);
                     using (MySqlDataReader reader = cmd.ExecuteReader())
                     {
                         //TODO: check if all needed columns exist

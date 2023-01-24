@@ -6,7 +6,7 @@ using System.Net;
 namespace ApiServer.Controllers
 {
     [ApiController]
-    [Route("[controller]/{stationID}")]
+    [Route("[controller]/{stationID:int}")]
     public class BikeStationController : ControllerBase
     {
         private readonly ILogger<BikeStationController> _logger;

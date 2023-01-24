@@ -1,7 +1,16 @@
-﻿using System.Reflection.PortableExecutable;
+﻿using ApiServer.Controllers;
+using ApiServer.Models;
+using MySql.Data.MySqlClient;
+using System.Data;
+using System.Reflection.PortableExecutable;
 
 namespace ApiServer.Tools
 {
+    //TODO: move other classes in here in here
+    public static class DBTables
+    {
+
+    }
     /// <summary>
     /// Contains database field name definition strings for the biketrips table.
     /// </summary>
@@ -47,7 +56,7 @@ namespace ApiServer.Tools
         }
     }
 
-    public static class BikeStationTableStrings
+    public static class BikeStations
     {
         /// <summary>
         /// Contains name strings of table columns.
@@ -66,12 +75,43 @@ namespace ApiServer.Tools
             public const string Capacity = "Capacity";
             public const string PosX = "PosX";
             public const string PosY = "PosY";
+
+            /*
+            /// <summary>
+            /// Builds an array of the columns defined here.
+            /// </summary>
+            /// <returns></returns>
+            public static DataColumn[] BuildColumns()
+            {
+                return new DataColumn[]
+                {
+                new DataColumn(ID, typeof(int)),
+                new DataColumn(NameFin, typeof(string)),
+                new DataColumn(NameSwe, typeof(string)),
+                new DataColumn(Name, typeof(string)),
+                new DataColumn(AddressFin, typeof(string)),
+                new DataColumn(AddressSwe, typeof(string)),
+                new DataColumn(CityFin, typeof(string)),
+                new DataColumn(CitySwe, typeof(string)),
+                new DataColumn(Operator, typeof(string)),
+                new DataColumn(Capacity, typeof(int)),
+                new DataColumn(PosX, typeof(double)),
+                new DataColumn(PosY, typeof(double))
+                };
+            }
+            */
         }
+
+        public const string TableName = "bikestations";
 
         public const string GetBikeStationsQuery =
             "SELECT bikestations . * " +
             "FROM `bikestations`\r\n" +
             "LIMIT 0 , 30";
+
+        public const string InsertBikeStationQuery =
+            $"INSERT INTO bikestations ({Columns.ID}, {Columns.NameFin}, {Columns.Name}) VALUES (@id, @namefin, @name)\r\n" +
+                        "ON DUPLICATE KEY UPDATE namefin = @namefin, name = @name;";
 
         public static string BuildBikeStationQuery(int stationID)
         {
@@ -80,5 +120,51 @@ namespace ApiServer.Tools
                 $"WHERE {Columns.ID} = {stationID}\r\n" +
                 "LIMIT 0 , 5"; //Limit max rows just in case
         }
+
+        public static string BuildInsertQuery(IEnumerable<Station> stations)
+        {
+            MySqlDataAdapter query = new MySqlDataAdapter();
+            throw new NotImplementedException();
+        }
+
+        /*
+        public static DataTable BuildStationsTable(IEnumerable<Station> stations)
+        {
+            DataTable stationsTable = BikeStationTable.BuildTable();
+
+            foreach (Station station in stations)
+            {
+                DataRow row = stationsTable.NewRow();
+                row[BikeStationTable.Columns.ID] = station.ID;
+                row[BikeStationTable.Columns.NameFin] = station.NameFin;
+                row[BikeStationTable.Columns.NameSwe] = station.NameSwe;
+                row[BikeStationTable.Columns.Name] = station.Name;
+                row[BikeStationTable.Columns.AddressFin] = station.AddressFin;
+                row[BikeStationTable.Columns.AddressSwe] = station.AddressSwe;
+                row[BikeStationTable.Columns.CityFin] = station.CityFin;
+                row[BikeStationTable.Columns.CitySwe] = station.CitySwe;
+                row[BikeStationTable.Columns.Operator] = station.OperatorName;
+                row[BikeStationTable.Columns.Capacity] = station.Capacity;
+                row[BikeStationTable.Columns.PosX] = station.PosX;
+                row[BikeStationTable.Columns.PosY] = station.PosY;
+
+                stationsTable.Rows.Add(row);
+            }
+
+            return stationsTable;
+        }
+
+        /// <summary>
+        /// Builds a datatable that matches the definitions here.
+        /// </summary>
+        /// <returns></returns>
+        public static DataTable BuildTable()
+        {
+            DataTable table = new DataTable(TableName);
+            table.Columns.AddRange(Columns.BuildColumns());
+
+            return table;
+        }
+        */
     }
 }
