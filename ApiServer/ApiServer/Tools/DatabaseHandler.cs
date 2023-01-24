@@ -78,15 +78,15 @@ namespace ApiServer.Tools
 
                             //Create a new BikeTrip with data from query and add it to trip list
                             tripList.Add(new BikeTrip(
-                                reader.GetInt32(BikeTripTableStrings.ID),
-                                reader.GetDateTime(BikeTripTableStrings.Departure),
-                                reader.GetDateTime(BikeTripTableStrings.Return),
-                                reader.GetInt32(BikeTripTableStrings.DepartureStationID),
-                                reader.GetString(BikeTripTableStrings.DepartureStationName),
-                                reader.GetInt32(BikeTripTableStrings.ReturnStationID),
-                                reader.GetString(BikeTripTableStrings.ReturnStationName),
-                                reader.GetInt32(BikeTripTableStrings.Distance),
-                                new TimeSpan(0, 0, reader.GetInt32(BikeTripTableStrings.Duration))
+                                reader.GetInt32(DBTables.BikeTrips.ID),
+                                reader.GetDateTime(DBTables.BikeTrips.Departure),
+                                reader.GetDateTime(DBTables.BikeTrips.Return),
+                                reader.GetInt32(DBTables.BikeTrips.DepartureStationID),
+                                reader.GetString(DBTables.BikeTrips.DepartureStationName),
+                                reader.GetInt32(DBTables.BikeTrips.ReturnStationID),
+                                reader.GetString(DBTables.BikeTrips.ReturnStationName),
+                                reader.GetInt32(DBTables.BikeTrips.Distance),
+                                new TimeSpan(0, 0, reader.GetInt32(DBTables.BikeTrips.Duration))
                                 ));
                         }
                     }
@@ -98,12 +98,12 @@ namespace ApiServer.Tools
 
         public static IEnumerable<BikeTrip> GetTrips()
         {
-            return GetTrips(BikeTripTableStrings.BikeTripQueryWithStationNames);
+            return GetTrips(DBTables.BikeTrips.BikeTripQueryWithStationNames);
         }
 
         public static IEnumerable<BikeTrip> GetTripsFromStation(int stationID)
         {
-            return GetTrips(BikeTripTableStrings.BuildBikeTripsFromStationQuery(stationID));
+            return GetTrips(DBTables.BikeTrips.BuildBikeTripsFromStationQuery(stationID));
         }
 
         /// <summary>
@@ -120,7 +120,7 @@ namespace ApiServer.Tools
 
                 using (MySqlCommand cmd = conn.CreateCommand())
                 {
-                    cmd.CommandText = BikeStations.GetBikeStationsQuery;
+                    cmd.CommandText = DBTables.BikeStations.GetBikeStationsQuery;
                     using (MySqlDataReader reader = cmd.ExecuteReader())
                     {
                         //TODO: check if all needed columns exist
@@ -159,7 +159,7 @@ namespace ApiServer.Tools
                 //using (MySqlTransaction tran = conn.BeginTransaction(IsolationLevel.Serializable))
                 {
                     //TODO: add all values it insert statement
-                    cmd.CommandText = BikeStations.InsertBikeStationQuery;
+                    cmd.CommandText = DBTables.BikeStations.InsertBikeStationQuery;
 
                     //TODO: Batch inserts together somehow
 
@@ -203,7 +203,7 @@ namespace ApiServer.Tools
 
                 using (MySqlCommand cmd = conn.CreateCommand())
                 {
-                    cmd.CommandText = BikeStations.BuildBikeStationQuery(stationID);
+                    cmd.CommandText = DBTables.BikeStations.BuildBikeStationQuery(stationID);
                     using (MySqlDataReader reader = cmd.ExecuteReader())
                     {
                         //TODO: check if all needed columns exist

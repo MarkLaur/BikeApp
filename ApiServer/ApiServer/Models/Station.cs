@@ -89,18 +89,18 @@ namespace ApiServer.Models
             //Call the other constructor
             //We don't have any nullable columns so null check shouldn't be needed.
             this(
-                reader.GetInt32(BikeStations.Columns.ID),
-                reader.GetString(BikeStations.Columns.NameFin),
-                reader.GetString(BikeStations.Columns.NameSwe),
-                reader.GetString(BikeStations.Columns.Name),
-                reader.GetString(BikeStations.Columns.AddressFin),
-                reader.GetString(BikeStations.Columns.AddressSwe),
-                reader.GetString(BikeStations.Columns.CityFin),
-                reader.GetString(BikeStations.Columns.CitySwe),
-                reader.GetString(BikeStations.Columns.Operator),
-                reader.GetInt32(BikeStations.Columns.Capacity),
-                reader.GetDecimal(BikeStations.Columns.PosX),
-                reader.GetDecimal(BikeStations.Columns.PosY)
+                reader.GetInt32(DBTables.BikeStations.Columns.ID),
+                reader.GetString(DBTables.BikeStations.Columns.NameFin),
+                reader.GetString(DBTables.BikeStations.Columns.NameSwe),
+                reader.GetString(DBTables.BikeStations.Columns.Name),
+                reader.GetString(DBTables.BikeStations.Columns.AddressFin),
+                reader.GetString(DBTables.BikeStations.Columns.AddressSwe),
+                reader.GetString(DBTables.BikeStations.Columns.CityFin),
+                reader.GetString(DBTables.BikeStations.Columns.CitySwe),
+                reader.GetString(DBTables.BikeStations.Columns.Operator),
+                reader.GetInt32(DBTables.BikeStations.Columns.Capacity),
+                reader.GetDecimal(DBTables.BikeStations.Columns.PosX),
+                reader.GetDecimal(DBTables.BikeStations.Columns.PosY)
                 )
         { }
     }
