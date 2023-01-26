@@ -3,14 +3,9 @@ using Microsoft.AspNetCore.SignalR.Protocol;
 using Microsoft.Extensions.Primitives;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
-using System.Formats.Asn1;
 using System.IO;
 using System.Linq;
 using System.Net.Http.Headers;
-using System.Text.Json;
-using System.Text.Json.Serialization;
-using System.Threading.Tasks;
 using WebApp.Models;
 using WebApp.Pages;
 
@@ -97,9 +92,16 @@ namespace WebApp.Services
             }
         }
 
-        public async Task<HttpResponse> UploadStations(IEnumerable<Station> stations)
+        /// <summary>
+        /// Uploads given stations to api server.
+        /// </summary>
+        /// <param name="stations"></param>
+        /// <returns></returns>
+        /// <exception cref="NotImplementedException"></exception>
+        public async Task<HttpResponseMessage> UploadStations(IEnumerable<Station> stations, ILogger<IndexModel> _logger)
         {
-            throw new NotImplementedException();
+            HttpResponseMessage response = await client.PutAsJsonAsync(ApiDefinitions.BikeStationsUri, stations);
+            return response;
         }
         #endregion
     }

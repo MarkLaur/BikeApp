@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.VisualBasic.FileIO;
 using System.Globalization;
+using System.Net;
 using System.Runtime.CompilerServices;
 using System.Text.Json;
 using WebApp.Models;
@@ -33,10 +34,26 @@ namespace WebApp.Pages
             Message = $"Uploading Stations: {stations.Count}. Invalid lines: {invalidLines}.";
 
             //TODO: this probably blocks the main thread pretty bad, fix this
-            Task<HttpResponse> task = _apiService.UploadStations(stations);
-            HttpResponse response = task.Result;
+            Task<HttpResponseMessage> task = _apiService.UploadStations(stations, _logger);
+            HttpResponseMessage response = task.Result;
 
-            Message += $"Upload complete. api response: {response.StatusCode}";
+            if (response.IsSuccessStatusCode)
+            {
+                Message += $" Upload succesful.";
+            }
+            else if(response.StatusCode == HttpStatusCode.BadRequest) //Api returns 400 if model validation fails
+            {
+                Task<string> responseRead = response.Content.ReadAsStringAsync();
+                string text = responseRead.Result;
+
+                //TODO: Get broken fields from response and show them to user in a nice form to user
+
+                Message += $" Upload failed. api response: {response.StatusCode}.\n\nFull response:\n\n{text}";
+            }
+            else
+            {
+                Message += $" Upload failed. api response: {response.StatusCode}";
+            }
         }
 
         private bool TryParseCSV(IFormFile file, out List<Station> stations, out int invalidLines, params string[] delimiters)
