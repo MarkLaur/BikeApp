@@ -48,11 +48,11 @@ namespace WebApp.Services
         #region Async Tasks
 
         /// <summary>
-        /// Tries to get json string from given uri. Returns a (success, json) tuple.
+        /// Tries to get json string from given uri.
         /// </summary>
         /// <param name="uri"></param>
         /// <returns></returns>
-        public async Task<string> GetJson(Uri uri)
+        public async Task<Stream> GetJson(Uri uri)
         {
             //Perform api request
             HttpResponseMessage response = await client.GetAsync(uri);
@@ -61,17 +61,17 @@ namespace WebApp.Services
                 throw new BadHttpRequestException($"Couldn't get data from api. ({response.StatusCode})");
             }
 
-            string json = await response.Content.ReadAsStringAsync();
-            return json;
+            return await response.Content.ReadAsStreamAsync();
         }
 
         /// <summary>
         /// Tries to find station with given id from api. Returns null if station cannot be found.
+        /// Returns a (success, jsonStream) tuple. JsonStream is not null when success is true.
         /// </summary>
         /// <param name="stationID"></param>
         /// <returns></returns>
         /// <exception cref="BadHttpRequestException"></exception>
-        public async Task<string?> TryGetStationJson(int stationID)
+        public async Task<(bool, Stream?)> TryGetStationJson(int stationID)
         {
             //Perform api request
             HttpResponseMessage response = await client.GetAsync(ApiDefinitions.BuildBikeStationUri(stationID));
@@ -83,12 +83,11 @@ namespace WebApp.Services
             if (response.Headers.TryGetValues("StationFound", out IEnumerable<string>? values)
                 && values != null && values.First() == "true")
             {
-                string json = await response.Content.ReadAsStringAsync();
-                return json;
+                return (true, await response.Content.ReadAsStreamAsync());
             }
             else
             {
-                return null;
+                return (false, default);
             }
         }
 
@@ -98,7 +97,7 @@ namespace WebApp.Services
         /// <param name="stations"></param>
         /// <returns></returns>
         /// <exception cref="NotImplementedException"></exception>
-        public async Task<HttpResponseMessage> UploadStations(IEnumerable<Station> stations, ILogger<IndexModel> _logger)
+        public async Task<HttpResponseMessage> UploadStations(IEnumerable<Station> stations)
         {
             HttpResponseMessage response = await client.PutAsJsonAsync(ApiDefinitions.BikeStationsUri, stations);
             return response;

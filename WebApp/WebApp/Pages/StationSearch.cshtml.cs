@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
 using System.Text.Json;
 using WebApp.Models;
@@ -17,9 +18,6 @@ namespace WebApp.Pages
         /// Contains the error message shown to user. Will be null if no errors occurred.
         /// </summary>
         public string? ErrorMessage { get; private set; }
-        /// <summary>
-        /// Contains station data if ErrorMessage isn't null.
-        /// </summary>
 
         public int? SearchedStationID { get; private set; }
         public Station? SearchedStation { get; private set; }
@@ -34,7 +32,7 @@ namespace WebApp.Pages
             StationTrips = null;
         }
 
-        public void OnGet([FromQuery] int? stationID)
+        public async Task OnGetAsync([FromQuery] int? stationID)
         {
             SearchedStationID = stationID;
 
@@ -45,21 +43,28 @@ namespace WebApp.Pages
 
             //TODO: Do queries on client side using AJAX
 
-            //TODO: get searched station info
-            if(TryGetStation(stationID.Value, out Station tempStation, out string stationError))
+            //Start both tasks
+            Task<(bool, Station?, string)> stationTask = TryGetStation(stationID.Value);
+            Task<(bool, IEnumerable<BikeTrip>?, string)> tripsTask = TryGetBikeTrips(stationID.Value);
+
+            //Get station data
+            (bool, Station?, string) result = await stationTask;
+            if (result.Item1)
             {
-                SearchedStation = tempStation;
+                SearchedStation = result.Item2;
             }
 
-            if(TryGetBikeTrips(stationID.Value, out IEnumerable<BikeTrip>? tripsTemp, out string tripsError)
-                && tripsTemp != null)
+            //Get trips from station
+            (bool, IEnumerable<BikeTrip>?, string) result2 = await tripsTask;
+            if (result2.Item1)
             {
-                StationTrips = tripsTemp;
+                StationTrips = result2.Item2;
             }
 
-            if(!string.IsNullOrWhiteSpace(stationError) || !string.IsNullOrWhiteSpace(tripsError))
+            //Build an error message for the user if something coudln't be found.
+            if(!string.IsNullOrWhiteSpace(result.Item3) || !string.IsNullOrWhiteSpace(result2.Item3))
             {
-                ErrorMessage = stationError + " " + tripsError;
+                ErrorMessage = result.Item3 + " " + result2.Item3;
             }
             else
             {
@@ -67,93 +72,94 @@ namespace WebApp.Pages
             }
         }
 
-        private bool TryGetStation(int stationID, out Station station, out string userErrorMessage)
+        /// <summary>
+        /// Returns a (success, station, userErrorMessage) tuple. Station is null when success is false.
+        /// </summary>
+        /// <param name="stationID"></param>
+        /// <param name="station"></param>
+        /// <param name="userErrorMessage"></param>
+        /// <returns></returns>
+        private async Task<(bool, Station?, string)> TryGetStation(int stationID)
         {
-            userErrorMessage = "";
-            string json;
+            (bool, Stream?) result;
 
             try
             {
-                //TODO: this probably blocks the thread really bad, fix this
-                Task<string?> task = _apiService.TryGetStationJson(stationID);
-                string? result = task.Result;
-
-                if(result != null)
-                {
-                    json = result;
-                }
-                else
-                {
-                    userErrorMessage = $"Station {stationID} cannot be found";
-                    station = default;
-                    return false;
-                }
+                //TODO: Figure out what can throw errors in TryGetStationJson() and handle it.
+                result = await _apiService.TryGetStationJson(stationID);
             }
             catch (Exception ex)
             {
                 _logger.LogError("Bike trips api request failed");
 
-                userErrorMessage = "Failed to get Station json: " + ex.Message;
-                station = default;
-                return false;
+                return (false, default, "Failed to get Station json: " + ex.Message);
             }
 
-            station = JsonSerializer.Deserialize<Station>(json,
+            //Check if TryGetStationJson() succeeded
+            if (!result.Item1 || result.Item2 == null)
+            {
+                return (false, default, $"Station {stationID} cannot be found");
+            }
+
+            //Attempt to deserialize
+            Station? station = await JsonSerializer.DeserializeAsync<Station>(result.Item2,
             new JsonSerializerOptions
             {
                 PropertyNameCaseInsensitive = true
             });
 
-            //TODO: Figure out if deserialization can fail and how to test it.
-            /*
-            //Set empty array and return if deserialization failed
-            if (!station.Valid)
+            //Station will be null if serialization fails
+            if (station != null)
             {
-                userErrorMessage = "Bike trip deserialization failed";
-                _logger.LogError(userErrorMessage);
-                return false;
+                return (true, station, "");
             }
-            */
-
-            return true;
+            else
+            {
+                return (false, default, "Station deserialization failed");
+            }
         }
 
-        private bool TryGetBikeTrips(int stationID, out IEnumerable<BikeTrip>? trips, out string userErrorMessage)
+        /// <summary>
+        /// Returns a (success, trips, userErrorMessage) tuple. Trips is null when success is false.
+        /// </summary>
+        /// <param name="stationID"></param>
+        /// <param name="trips"></param>
+        /// <param name="userErrorMessage"></param>
+        /// <returns></returns>
+        private async Task<(bool, IEnumerable<BikeTrip>?, string)> TryGetBikeTrips(int stationID)
         {
-            userErrorMessage = "";
-            string json;
-            Uri stationUri = ApiDefinitions.BuildStationInfoUri(stationID);
+            Stream json;
 
             try
             {
-                //TODO: this probably blocks the thread really bad, fix this
-                Task<string> task = _apiService.GetJson(stationUri);
-                json = task.Result;
+                Uri stationUri = ApiDefinitions.BuildStationInfoUri(stationID);
+
+                //TODO: Figure out what can throw errors in TryGetStationJson() and handle it.
+                json = await _apiService.GetJson(stationUri);
             }
             catch (Exception ex)
             {
                 _logger.LogError("Bike trips api request failed");
 
-                userErrorMessage = "Failed to get BikeTrips json: " + ex.Message;
-                trips = null;
-                return false;
+                return (false, null, "Failed to get BikeTrips json: " + ex.Message);
             }
 
-            trips = JsonSerializer.Deserialize<BikeTrip[]>(json,
+            //Try to deserialize
+            IEnumerable<BikeTrip>? trips = await JsonSerializer.DeserializeAsync<BikeTrip[]>(json,
             new JsonSerializerOptions
             {
                 PropertyNameCaseInsensitive = true
             });
 
-            //Set empty array and return if deserialization failed
-            if (trips == null)
+            //trips will be null if serialization fails
+            if (trips != null)
             {
-                userErrorMessage = "Bike trip deserialization failed";
-                _logger.LogError(userErrorMessage);
-                return false;
+                return (true, trips, "");
             }
-
-            return true;
+            else
+            {
+                return (false, default, "Bike trip deserialization failed");
+            }
         }
     }
 }

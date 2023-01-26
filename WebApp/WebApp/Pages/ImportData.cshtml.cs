@@ -25,11 +25,7 @@ namespace WebApp.Pages
             _apiService = apiService;
         }
 
-        public void OnGet()
-        {
-        }
-
-        public void OnPostStations([FromForm] IFormFile file)
+        public async Task OnPostStations([FromForm] IFormFile file)
         {
             if (file == null)
             {
@@ -42,8 +38,7 @@ namespace WebApp.Pages
             Message = $"Uploading Stations: {stations.Count}. Invalid lines: {invalidLines}.";
 
             //TODO: this probably blocks the main thread pretty bad, fix this
-            Task<HttpResponseMessage> task = _apiService.UploadStations(stations, _logger);
-            HttpResponseMessage response = task.Result;
+            HttpResponseMessage response = await _apiService.UploadStations(stations);
 
             if (response.IsSuccessStatusCode)
             {
@@ -51,8 +46,7 @@ namespace WebApp.Pages
             }
             else if (response.StatusCode == HttpStatusCode.BadRequest) //Api returns 400 if model validation fails
             {
-                Task<string> responseRead = response.Content.ReadAsStringAsync();
-                string text = responseRead.Result;
+                string text = await response.Content.ReadAsStringAsync();
 
                 //TODO: Get broken fields from response and show them to user in a nice form to user
 
@@ -64,7 +58,7 @@ namespace WebApp.Pages
             }
         }
 
-        public void OnPostTrips([FromForm] IFormFile file)
+        public async Task OnPostTrips([FromForm] IFormFile file)
         {
             if (file == null)
             {

@@ -17,22 +17,22 @@ namespace ApiServer.Controllers
         }
 
         [HttpGet(Name = "GetBikeStation")]
-        public ActionResult<Station> Get([FromRoute] int stationID)
+        public ActionResult<Station?> Get([FromRoute] int stationID)
         {
             try
             {
-                if(DatabaseHandler.TryGetStation(stationID, out Station station))
+                if(DatabaseHandler.TryGetStation(stationID, out Station? station))
                 {
                     //Return success bool as a header so we don't have to create a custom struct jsut for this
                     Response.Headers.Add("StationFound", "true");
-                    return new ActionResult<Station>(station);
+                    return new ActionResult<Station?>(station);
                 }
                 else
                 {
                     //Return success bool as a header so we don't have to create a custom struct jsut for this
                     Response.Headers.Add("StationFound", "false");
                     //Return blank station when station isn't found
-                    return new ActionResult<Station>(default(Station));
+                    return new ActionResult<Station?>(default(Station));
                 }
             }
             catch (Exception ex)

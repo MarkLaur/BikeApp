@@ -29,17 +29,16 @@ namespace WebApp.Pages
             BikeTrips = new BikeTrip[0];
         }
 
-        public void OnGet()
+        public async Task OnGetAsync()
         {
             //TODO: implement pagination
 
-            string json;
+            Stream json;
 
             //TODO: Do query on client side using AJAX
             try
             {
-                Task<string> task = _apiService.GetJson(ApiDefinitions.BikeTripsUri);
-                json = task.Result;
+                json = await _apiService.GetJson(ApiDefinitions.BikeTripsUri);
             }
             catch (Exception ex)
             {
@@ -49,13 +48,14 @@ namespace WebApp.Pages
                 return;
             }
 
-            IEnumerable<BikeTrip>? trips = JsonSerializer.Deserialize<BikeTrip[]>(json,
+            //Try to deserialize trips
+            IEnumerable<BikeTrip>? trips = await JsonSerializer.DeserializeAsync<BikeTrip[]>(json,
             new JsonSerializerOptions
             {
                 PropertyNameCaseInsensitive = true
             });
 
-            //Set empty array and return if deserialization failed
+            //Trips will be null if deserialization failed
             if (trips == null)
             {
                 //Bike trips should be an empty array already so no need to re-create it

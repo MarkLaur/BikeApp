@@ -4,6 +4,7 @@ using MySql.Data.MySqlClient;
 using MySqlX.XDevAPI;
 using System.Data;
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 
 namespace ApiServer.Tools
 {
@@ -186,7 +187,7 @@ namespace ApiServer.Tools
             }
         }
 
-        public static bool TryGetStation(int stationID, out Station station)
+        public static bool TryGetStation(int stationID, [NotNullWhen(true), MaybeNullWhen(false)] out Station station)
         {
             using (MySqlConnection conn = new MySqlConnection(connectionString))
             {
