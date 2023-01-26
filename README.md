@@ -6,7 +6,7 @@ Welcome to my bikeapp project. This is my first Asp.NET Core project so I'm prob
 
 Critique is welcome; I want to learn more.
 
-This was made as a pre-assignment for Solita Dev Academy. I'll probably leave this public until it stops representing my skills.
+This was made as a pre-assignment for Solita Dev Academy.
 
 # The plan tm:
 - ASP.NET core webapp server that talks to the separate api server, full source code in git repo
@@ -15,8 +15,6 @@ This was made as a pre-assignment for Solita Dev Academy. I'll probably leave th
 
 # TODO
 - Figure out how to send page to client early without data and do api requests late.
-- All db fields to bike station api and page
-- Single station page with the station's trips listed
 
 # Installation instructions
 1. Download this github repository

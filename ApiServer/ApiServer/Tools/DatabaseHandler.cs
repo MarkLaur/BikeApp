@@ -145,52 +145,43 @@ namespace ApiServer.Tools
         /// </summary>
         /// <param name="stations"></param>
         /// <exception cref="NotImplementedException"></exception>
-        public static void PutStations(IEnumerable<Station> stations)
+        public static void InsertStations(IEnumerable<Station> stations)
         {
-            //DataTable stationsTable = BuildStationsTable(stations);
-
             using (MySqlConnection conn = new MySqlConnection(connectionString))
             {
                 conn.Open();
 
                 using (MySqlCommand cmd = conn.CreateCommand())
+                using (MySqlTransaction transaction = conn.BeginTransaction())
                 using (MySqlDataAdapter adapter = new MySqlDataAdapter(cmd))
-                //using (MySqlCommandBuilder builder = new MySqlCommandBuilder(adapter))
-                //using (MySqlTransaction tran = conn.BeginTransaction(IsolationLevel.Serializable))
                 {
-                    //TODO: add all values it insert statement
                     cmd.CommandText = DBTables.BikeStations.InsertBikeStationQuery;
 
-                    //TODO: Batch inserts together somehow
-
+                    //This might not be the best way to do a massive amount of inserts but it works well enough for now.
                     foreach (Station station in stations)
                     {
-                        //AddWithValue() should sanitize inputs by escaping all dangerous characters.
                         cmd.Parameters.Clear();
 
+                        //TODO: make sure AddWithValue() actually sanitizes everything
+                        //AddWithValue() should sanitize inputs by escaping all dangerous characters.
                         cmd.Parameters.AddWithValue("@id", station.ID);
                         cmd.Parameters.AddWithValue("@namefin", station.NameFin);
+                        cmd.Parameters.AddWithValue("@nameswe", station.NameSwe);
                         cmd.Parameters.AddWithValue("@name", station.Name);
+                        cmd.Parameters.AddWithValue("@addressfin", station.AddressFin);
+                        cmd.Parameters.AddWithValue("@addressswe", station.AddressSwe);
+                        cmd.Parameters.AddWithValue("@cityfin", station.CityFin);
+                        cmd.Parameters.AddWithValue("@cityswe", station.CitySwe);
+                        cmd.Parameters.AddWithValue("@operator", station.OperatorName);
+                        cmd.Parameters.AddWithValue("@capacity", station.Capacity);
+                        cmd.Parameters.AddWithValue("@posx", station.PosX);
+                        cmd.Parameters.AddWithValue("@posy", station.PosY);
 
                         cmd.ExecuteNonQuery();
                     }
-                    /*
-                    builder.SetAllValues = true;
 
-                    builder.GetInsertCommand();
-                    builder.GetUpdateCommand();
-                    builder.GetDeleteCommand();
-                    adapter.UpdateBatchSize = 1000;
-                    adapter.ContinueUpdateOnError = true;
-                    return adapter.Update(stationsTable);
-                    */
-
-                    //TODO: make sure query is sanitized
-
-                    //TODO: sanitize station strings
-                    //TODO: put data into database
-                    // cmd.ExecuteNonQuery();
-                    //tran.Commit();
+                    //There's also CommitAsync(), but we have to send a status code back anyway so we might as well wait for this to complete.
+                    transaction.Commit();
                 }
             }
         }

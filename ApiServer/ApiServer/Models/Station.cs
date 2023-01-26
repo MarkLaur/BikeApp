@@ -14,35 +14,35 @@ namespace ApiServer.Models
         /// <summary>
         /// Finnish name
         /// </summary>
-        [Required, StringLength(100)]
+        [StringLength(100)]
         public string NameFin { get; private set; }
         /// <summary>
         /// Swedish name
         /// </summary>
-        [Required, StringLength(100)]
+        [StringLength(100)]
         public string NameSwe { get; private set; }
         /// <summary>
         /// English name
         /// </summary>
-        [Required, StringLength(100)]
+        [StringLength(100)]
         public string Name { get; private set; }
 
-        [Required, StringLength(100)]
+        [StringLength(100)]
         public string AddressFin { get; private set; }
 
-        [Required, StringLength(100)]
+        [StringLength(100)]
         public string AddressSwe { get; private set; }
 
-        [Required, StringLength(100)]
+        [StringLength(100)]
         public string CityFin { get; private set; }
 
-        [Required, StringLength(100)]
+        [ StringLength(100)]
         public string CitySwe { get; private set; }
 
-        [Required, StringLength(100)]
+        [StringLength(100)]
         public string OperatorName { get; private set; }
 
-        [Required, Range(0, int.MaxValue)]
+        [Range(0, int.MaxValue)]
         public int Capacity { get; private set; }
 
         [Required]

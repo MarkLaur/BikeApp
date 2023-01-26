@@ -37,8 +37,8 @@ CREATE TABLE IF NOT EXISTS `bikestations` (
   `CitySwe` varchar(100) NOT NULL,
   `Operator` varchar(100) NOT NULL,
   `Capacity` int(11) NOT NULL,
-  `PosX` decimal(10,0) NOT NULL,
-  `PosY` decimal(10,0) NOT NULL,
+  `PosX` decimal(9,6) NOT NULL,
+  `PosY` decimal(9,6) NOT NULL,
   PRIMARY KEY (`ID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 

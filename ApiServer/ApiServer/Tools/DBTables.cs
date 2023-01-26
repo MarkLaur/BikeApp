@@ -109,9 +109,16 @@ namespace ApiServer.Tools
                 "FROM `bikestations`\r\n" +
                 "LIMIT 0 , 30";
 
+            /// <summary>
+            /// A parametized SQL query that inserts a station into bikestations table. Updates existing key on duplicate key.
+            /// Contained parameters: @id, @namefin, @nameswe, @name, @addressfin, @addressswe, @cityfin, @cityswe, @operator, @capacity, @posx, @posy
+            /// </summary>
             public const string InsertBikeStationQuery =
-                $"INSERT INTO bikestations ({Columns.ID}, {Columns.NameFin}, {Columns.Name}) VALUES (@id, @namefin, @name)\r\n" +
-                            "ON DUPLICATE KEY UPDATE namefin = @namefin, name = @name;";
+                "INSERT INTO bikestations\r\n" +
+                "VALUES (@id, @namefin, @nameswe, @name, @addressfin, @addressswe, @cityfin, @cityswe, @operator, @capacity, @posx, @posy)\r\n" +
+                $"ON DUPLICATE KEY UPDATE {Columns.NameFin} = @namefin, {Columns.NameSwe} = @nameswe, {Columns.Name} = @name, " +
+                $"{Columns.AddressFin} = @addressfin, {Columns.AddressSwe} = @addressswe, {Columns.CityFin} = @cityfin, {Columns.CitySwe} = @cityswe, " +
+                $"{Columns.Operator} = @operator, {Columns.Capacity} = @capacity, {Columns.PosX} = @posx, {Columns.PosY} = @posy;";
 
             public static string BuildBikeStationQuery(int stationID)
             {

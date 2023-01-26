@@ -33,14 +33,16 @@ namespace ApiServer.Controllers
             }
         }
 
-        [HttpPut] //Using the HttpGet(name) override makes swagger die as it can't tell the difference between gets and puts
+        [HttpPut] //Using the HttpPut(name) override makes swagger die as it can't tell the difference between gets and puts
         public ActionResult Put([FromBody] List<Station> stations)
         {
             try
             {
                 //This class should automagically validate the model since the class is decorated with [ApiController]
+
                 //DatabaseHandler handles sanitization
-                DatabaseHandler.PutStations(stations);
+                DatabaseHandler.InsertStations(stations);
+
                 return StatusCode(StatusCodes.Status200OK);
             }
             catch (Exception ex)
