@@ -5,9 +5,7 @@ using System.Text.Json.Serialization;
 
 namespace ApiServer.Models
 {
-    //This could be a class, but then we would have to make sure that there is only one instance of each station so that
-    //reference comparisons don't break. I might turn this into a class and make a station dictionary or something at some point.
-    public struct Station
+    public class Station
     {
         [Required, Range(0, int.MaxValue)]
         public int ID { get; private set; }
@@ -36,7 +34,7 @@ namespace ApiServer.Models
         [StringLength(100)]
         public string CityFin { get; private set; }
 
-        [ StringLength(100)]
+        [StringLength(100)]
         public string CitySwe { get; private set; }
 
         [StringLength(100)]
@@ -51,7 +49,7 @@ namespace ApiServer.Models
         [Required]
         public decimal PosY { get; private set; }
 
-        [JsonConstructor] //JsonSerializer can't serialize struct by default so the constructor has to be marked with this.
+        [JsonConstructor] //JsonSerializer can't deserialize things with multiple constructors without this thing
         public Station(
             int id,
             string nameFin,

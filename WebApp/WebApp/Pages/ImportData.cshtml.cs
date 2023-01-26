@@ -1,6 +1,8 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.VisualBasic.FileIO;
+using System.ComponentModel.DataAnnotations;
+using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.Net;
 using System.Runtime.CompilerServices;
@@ -27,8 +29,14 @@ namespace WebApp.Pages
         {
         }
 
-        public void OnPost(IFormFile file)
+        public void OnPostStations([FromForm] IFormFile file)
         {
+            if (file == null)
+            {
+                Message = "Select a file";
+                return;
+            }
+
             //TODO: validate csv and upload data on client side
             TryParseCSV(file, out List<Station> stations, out int invalidLines, ",");
             Message = $"Uploading Stations: {stations.Count}. Invalid lines: {invalidLines}.";
@@ -41,7 +49,7 @@ namespace WebApp.Pages
             {
                 Message += $" Upload succesful.";
             }
-            else if(response.StatusCode == HttpStatusCode.BadRequest) //Api returns 400 if model validation fails
+            else if (response.StatusCode == HttpStatusCode.BadRequest) //Api returns 400 if model validation fails
             {
                 Task<string> responseRead = response.Content.ReadAsStringAsync();
                 string text = responseRead.Result;
@@ -53,6 +61,15 @@ namespace WebApp.Pages
             else
             {
                 Message += $" Upload failed. api response: {response.StatusCode}";
+            }
+        }
+
+        public void OnPostTrips([FromForm] IFormFile file)
+        {
+            if (file == null)
+            {
+                Message = "Select a file";
+                return;
             }
         }
 
@@ -85,7 +102,7 @@ namespace WebApp.Pages
                 int headerFieldCount = rowCache.Length;
 
                 //Check if first row is a header or a data row
-                if (TryFromCSV(rowCache, out Station stat))
+                if (TryFromCSV(rowCache, out Station? stat))
                 {
                     stations.Add(stat);
                 }
@@ -100,7 +117,7 @@ namespace WebApp.Pages
 
                         if (rowCache != null
                             && rowCache.Length == headerFieldCount
-                            && TryFromCSV(rowCache, out Station station))
+                            && TryFromCSV(rowCache, out Station? station))
                         {
                             stations.Add(station);
                         }
@@ -119,7 +136,7 @@ namespace WebApp.Pages
             }
         }
 
-        private bool TryFromCSV(string[] fields, out Station station)
+        private bool TryFromCSV(string[] fields, [NotNullWhen(true), MaybeNullWhen(false)] out Station station)
         {
             //This might be needed depending on what the parser does
             /*
@@ -159,8 +176,6 @@ namespace WebApp.Pages
                     x,
                     y
                     );
-
-                return true;
             }
             //The imported csv can also have a fid field at the start
             else if (fields.Length == 13
@@ -185,14 +200,15 @@ namespace WebApp.Pages
                     x,
                     y
                     );
-
-                return true;
             }
             else
             {
-                station = default;
+                station = null;
                 return false;
             }
+
+            ValidationContext vc = new ValidationContext(station);
+            return Validator.TryValidateObject(station, vc, null, true);
         }
     }
 }

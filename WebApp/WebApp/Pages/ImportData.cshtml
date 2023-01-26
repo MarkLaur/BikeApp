@@ -7,7 +7,14 @@
 
 <h2>Import Data</h2>
 
-<form enctype="multipart/form-data" method="post">
+<h4>Import stations</h4>
+<form enctype="multipart/form-data" asp-page-handler="stations" method="post">
+    <input type="file" name="file" class="form-control mb-3">
+    <button type="submit" class="btn btn-primary mb-3">Upload</button>
+</form>
+
+<h4>Import trips</h4>
+<form enctype="multipart/form-data" asp-page-handler="trips" method="post">
     <input type="file" name="file" class="form-control mb-3">
     <button type="submit" class="btn btn-primary mb-3">Upload</button>
 </form>

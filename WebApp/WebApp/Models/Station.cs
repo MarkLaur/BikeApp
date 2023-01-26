@@ -1,36 +1,53 @@
-﻿using System.Text.Json.Serialization;
+﻿using System.ComponentModel.DataAnnotations;
+using System.Text.Json.Serialization;
 
 namespace WebApp.Models
 {
-    //This could be a class, but then we would have to make sure that there is only one instance of each station so that
-    //reference comparisons don't break. I might turn this into a class and make a station dictionary or something at some point.
-    public struct Station
+    public class Station
     {
-        //public bool Valid => ID != -1;
-
-        public int ID { get; private set; } = -1; //Default to invalid value, this is set to a valid value in constructor
+        [Required, Range(0, int.MaxValue)]
+        public int ID { get; private set; }
         /// <summary>
         /// Finnish name
         /// </summary>
+        [StringLength(100)]
         public string NameFin { get; private set; }
         /// <summary>
         /// Swedish name
         /// </summary>
+        [StringLength(100)]
         public string NameSwe { get; private set; }
         /// <summary>
         /// English name
         /// </summary>
+        [StringLength(100)]
         public string Name { get; private set; }
+
+        [StringLength(100)]
         public string AddressFin { get; private set; }
+
+        [StringLength(100)]
         public string AddressSwe { get; private set; }
+
+        [StringLength(100)]
         public string CityFin { get; private set; }
+
+        [StringLength(100)]
         public string CitySwe { get; private set; }
+
+        [StringLength(100)]
         public string OperatorName { get; private set; }
+
+        [Range(0, int.MaxValue)]
         public int Capacity { get; private set; }
+
+        [Required]
         public decimal PosX { get; private set; }
+
+        [Required]
         public decimal PosY { get; private set; }
 
-        [JsonConstructor] //JsonSerializer can't serialize struct by default so the constructor has to be marked with this.
+        [JsonConstructor] //JsonSerializer can't deserialize things with multiple constructors without this thing
         public Station(
             int id,
             string nameFin,
