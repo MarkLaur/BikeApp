@@ -200,16 +200,18 @@ namespace ApiServer.Tools
         }
 
         /// <summary>
-        /// Puts stations into database. 
+        /// Puts stations into database. Returns the amount of incorrect trips
         /// </summary>
         /// <param name="trips"></param>
         /// <param name="requireID"></param>
-        public static void InsertBikeTrips(IEnumerable<BikeTrip> trips, BikeTripInsertMode mode)
+        public static async Task<int> InsertBikeTrips(IEnumerable<BikeTrip> trips, BikeTripInsertMode mode)
         {
             if(mode == BikeTripInsertMode.InsertOrUpdate)
             {
                 throw new NotImplementedException();
             }
+
+            int badTrips = 0;
 
             using (MySqlConnection conn = new MySqlConnection(connectionString))
             {
@@ -226,6 +228,12 @@ namespace ApiServer.Tools
                     {
                         cmd.Parameters.Clear();
 
+                        if (mode == BikeTripInsertMode.Insert && trip.ID != 0)
+                        {
+                            badTrips++;
+                            continue;
+                        }
+
                         //TODO: make sure AddWithValue() actually sanitizes everything
                         //AddWithValue() should sanitize inputs by escaping all dangerous characters.
                         cmd.Parameters.AddWithValue("@departuretime", trip.DepartureTime);
@@ -238,10 +246,11 @@ namespace ApiServer.Tools
                         cmd.ExecuteNonQuery();
                     }
 
-                    //There's also CommitAsync(), but we have to send a status code back anyway so we might as well wait for this to complete.
-                    transaction.Commit();
+                    await transaction.CommitAsync();
                 }
             }
+
+            return badTrips;
         }
 
         public static bool TryGetStation(int stationID, [NotNullWhen(true), MaybeNullWhen(false)] out Station station)

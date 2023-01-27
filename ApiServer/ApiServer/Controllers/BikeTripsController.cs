@@ -9,6 +9,12 @@ namespace ApiServer.Controllers
     [Route("[controller]")]
     public class BikeTripsController : ControllerBase
     {
+        public class InfoResponse
+        {
+            public int BadTrips { get; set; }
+            public string Info { get; set; } = "";
+        }
+
         private readonly ILogger<BikeTripsController> _logger;
 
         public BikeTripsController(ILogger<BikeTripsController> logger)
@@ -33,18 +39,32 @@ namespace ApiServer.Controllers
         }
 
         [HttpPut] //Using the HttpPut(name) override makes swagger die as it can't tell the difference between gets and puts
-        public ActionResult Put([FromBody] List<BikeTrip> trips)
+        public ActionResult<InfoResponse> Put([FromBody] List<BikeTrip> trips)
         {
             try
             {
                 //This class should automagically validate the model since the class is decorated with [ApiController]
 
+                //Either all trips should have IDs or none of them should to prevent broken values hidden in hundreds of lines from getting though.
+                
                 //TODO: handle the case where trips have defined id fields.
 
                 //DatabaseHandler handles sanitization
-                DatabaseHandler.InsertBikeTrips(trips, BikeTripInsertMode.Insert);
+                Task<int> insertTask = DatabaseHandler.InsertBikeTrips(trips, BikeTripInsertMode.Insert);
 
-                return StatusCode(StatusCodes.Status200OK);
+                InfoResponse response = new InfoResponse();
+                int badTrips = insertTask.Result;
+
+                if(badTrips != 0)
+                {
+                    response.Info = "There were some bad trips. Trips are not allowed to have id fields if the insert mode is insert.";
+                }
+                else
+                {
+                    response.Info = "All trip data was ok";
+                }
+
+                return StatusCode(StatusCodes.Status200OK, response);
             }
             catch (Exception ex)
             {
