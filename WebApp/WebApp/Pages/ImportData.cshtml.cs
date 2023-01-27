@@ -9,6 +9,7 @@ using System.Runtime.CompilerServices;
 using System.Text.Json;
 using WebApp.Models;
 using WebApp.Services;
+using WebApp.Tools;
 
 namespace WebApp.Pages
 {
@@ -33,11 +34,16 @@ namespace WebApp.Pages
                 return;
             }
 
-            //TODO: validate csv and upload data on client side
-            TryParseCSV(file, out List<Station> stations, out int invalidLines, ",");
-            Message = $"Uploading Stations: {stations.Count}. Invalid lines: {invalidLines}.";
+            //TODO: validate csv and upload data on client side. Also, give the user info about progress.
 
-            //TODO: this probably blocks the main thread pretty bad, fix this
+            if (!CsvParser.TryParseCSV(file.OpenReadStream(), out List<Station> stations, out int invalidLines, ","))
+            {
+                Message = $"Invalid CSV format.";
+                return;
+            }
+
+            Message = $"Uploading stations: {stations.Count}. Invalid lines: {invalidLines}.";
+
             HttpResponseMessage response = await _apiService.UploadStations(stations);
 
             if (response.IsSuccessStatusCode)
@@ -65,144 +71,35 @@ namespace WebApp.Pages
                 Message = "Select a file";
                 return;
             }
-        }
 
-        private bool TryParseCSV(IFormFile file, out List<Station> stations, out int invalidLines, params string[] delimiters)
-        {
-            invalidLines = 0;
+            //TODO: validate csv and upload data on client side. Also, give the user info about progress.
 
-            using (TextFieldParser parser = new TextFieldParser(file.OpenReadStream()))
+            if (!CsvParser.TryParseCSV(file.OpenReadStream(), out List<BikeTrip> trips, out int invalidLines, ","))
             {
-                parser.TextFieldType = FieldType.Delimited;
-                parser.SetDelimiters(delimiters);
-                stations = new List<Station>();
-
-                string[]? rowCache;
-
-                if (parser.EndOfData)
-                {
-                    return false;
-                }
-
-                //Check header length
-                rowCache = parser.ReadFields();
-                if (rowCache == null || rowCache.Length == 0)
-                {
-                    _logger.LogInformation($"First row is invalid");
-                    return false;
-                }
-
-                //Save first row length to make sure length doens't change in the file
-                int headerFieldCount = rowCache.Length;
-
-                //Check if first row is a header or a data row
-                if (TryFromCSV(rowCache, out Station? stat))
-                {
-                    stations.Add(stat);
-                }
-
-                while (!parser.EndOfData)
-                {
-                    //TODO: figure out how to check if ReadFields() can run.
-                    //ReadFields() will throw an exception for every broken line, which can be somewhat expensive if there are a lot of them
-                    try
-                    {
-                        rowCache = parser.ReadFields();
-
-                        if (rowCache != null
-                            && rowCache.Length == headerFieldCount
-                            && TryFromCSV(rowCache, out Station? station))
-                        {
-                            stations.Add(station);
-                        }
-                        else
-                        {
-                            invalidLines++;
-                        }
-                    }
-                    catch
-                    {
-                        invalidLines++;
-                    }
-                }
-
-                return true;
+                Message = $"Invalid CSV format.";
+                return;
             }
-        }
 
-        private bool TryFromCSV(string[] fields, [NotNullWhen(true), MaybeNullWhen(false)] out Station station)
-        {
-            //This might be needed depending on what the parser does
-            /*
-            if (fields.Contains(null))
+            Message = $"Uploading bike trips: {trips.Count}. Invalid lines: {invalidLines}.";
+
+            HttpResponseMessage response = await _apiService.UploadTrips(trips);
+
+            if (response.IsSuccessStatusCode)
             {
-                station = default;
-                return false;
+                Message += $" Upload succesful.";
             }
-            */
-
-            CultureInfo culture = CultureInfo.InvariantCulture;
-
-            int id;
-            int capacity;
-            decimal x;
-            decimal y;
-
-            //Check length and try to parse strings
-            if(fields.Length == 12
-                && int.TryParse(fields[0], out id)
-                && int.TryParse(fields[9], out capacity)
-                && decimal.TryParse(fields[10], culture, out x)
-                && decimal.TryParse(fields[11], culture, out y)
-                )
+            else if (response.StatusCode == HttpStatusCode.BadRequest) //Api returns 400 if model validation fails
             {
-                //Construct station from parsed data
-                station = new Station(id,
-                    fields[1],
-                    fields[2],
-                    fields[3],
-                    fields[4],
-                    fields[5],
-                    fields[6],
-                    fields[7],
-                    fields[8],
-                    capacity,
-                    x,
-                    y
-                    );
-            }
-            //The imported csv can also have a fid field at the start
-            else if (fields.Length == 13
-                && int.TryParse(fields[1], out id)
-                && int.TryParse(fields[10], out capacity)
-                && decimal.TryParse(fields[11], culture, out x)
-                && decimal.TryParse(fields[12], culture, out y)
-                )
-            {
-                //Construct station from parsed data
+                string text = await response.Content.ReadAsStringAsync();
 
-                station = new Station(id,
-                    fields[2],
-                    fields[3],
-                    fields[4],
-                    fields[5],
-                    fields[6],
-                    fields[7],
-                    fields[8],
-                    fields[9],
-                    capacity,
-                    x,
-                    y
-                    );
+                //TODO: Get broken fields from response and show them to user in a nice form to user
+
+                Message += $" Upload failed. api response: {response.StatusCode}.\n\nFull response:\n\n{text}";
             }
             else
             {
-                station = null;
-                return false;
+                Message += $" Upload failed. api response: {response.StatusCode}";
             }
-
-            ValidationContext vc = new ValidationContext(station);
-            return Validator.TryValidateObject(station, vc, null, true);
         }
     }
 }

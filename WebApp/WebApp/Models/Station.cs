@@ -1,4 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.Diagnostics.CodeAnalysis;
+using System.Globalization;
 using System.Text.Json.Serialization;
 
 namespace WebApp.Models
@@ -75,6 +77,74 @@ namespace WebApp.Models
             Capacity = capacity;
             PosX = posX;
             PosY = posY;
+        }
+
+        /// <summary>
+        /// Tries to build station from a list of fields.
+        /// </summary>
+        /// <param name="fields"></param>
+        /// <param name="station"></param>
+        /// <returns></returns>
+        public static bool TryBuildFromCSV(string[] fields, [NotNullWhen(true), MaybeNullWhen(false)] out Station station)
+        {
+            CultureInfo culture = CultureInfo.InvariantCulture;
+
+            //The imported csv can also have an unused fid field at the start, in this case we offset the fields by 1.
+            int offset;
+            
+            //Check if field length is valid and set proper offset
+            if (fields.Length == 12)
+            {
+                offset = 0;
+            }
+            else if (fields.Length == 13)
+            {
+                offset = 1;
+            }
+            else
+            {
+                station = null;
+                return false;
+            }
+
+            //Check if all strings can be parsed and return if any of them fails
+            if (
+                !int.TryParse(fields[0 + offset], out int id)
+                || !int.TryParse(fields[9 + offset], out int capacity)
+                || !decimal.TryParse(fields[10 + offset], culture, out decimal x)
+                || !decimal.TryParse(fields[11 + offset], culture, out decimal y)
+                )
+            {
+                station = null;
+                return false;
+            }
+
+            //Construct station from parsed data
+            station = new Station(
+                id,
+                fields[1 + offset],
+                fields[2 + offset],
+                fields[3 + offset],
+                fields[4 + offset],
+                fields[5 + offset],
+                fields[6 + offset],
+                fields[7 + offset],
+                fields[8 + offset],
+                capacity,
+                x,
+                y
+                );
+
+            //Validate the object using the built in validator. I'm not sure how efficient this is but it
+            //validates the objects the same way as Asp.NET APIs do so we don't have to maintain another method.
+            ValidationContext vc = new ValidationContext(station);
+            if(!Validator.TryValidateObject(station, vc, null, true))
+            {
+                station = null;
+                return false;
+            }
+
+            return true;
         }
     }
 }

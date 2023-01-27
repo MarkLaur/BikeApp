@@ -23,6 +23,8 @@ namespace WebApp.Services
         //This should get initialized only once and before first instance is created.
         //Here's some info about static member initialization in case this breaks.
         //https://stackoverflow.com/questions/1405709/what-is-the-static-variable-initialization-order-across-classes-in-c
+        //
+        //We could instead add the service as a singleton
         private static HttpClient client = new HttpClient();
 
         static ApiService()
@@ -101,6 +103,11 @@ namespace WebApp.Services
         {
             HttpResponseMessage response = await client.PutAsJsonAsync(ApiDefinitions.BikeStationsUri, stations);
             return response;
+        }
+
+        public async Task<HttpResponseMessage> UploadTrips(IEnumerable<BikeTrip> trips)
+        {
+            throw new NotImplementedException();
         }
         #endregion
     }
