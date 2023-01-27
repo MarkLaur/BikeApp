@@ -24,6 +24,18 @@ namespace ApiServer.Tools
         Failure,
     }
 
+    public enum BikeTripInsertMode
+    {
+        /// <summary>
+        /// Inserts trips to database, or updates them if trip has an id and a matching entry already exists.
+        /// </summary>
+        InsertOrUpdate,
+        /// <summary>
+        /// Only inserts trips. Trips cannot have id fields set.
+        /// </summary>
+        Insert
+    }
+
     public static class DatabaseHandler
     {
         //TODO: create a user for database read and update only
@@ -79,19 +91,19 @@ namespace ApiServer.Tools
 
                             //Create a new BikeTrip with data from query and add it to trip list
                             tripList.Add(new BikeTrip(
-                                reader.GetInt32(DBTables.BikeTrips.ID),
-                                reader.GetDateTime(DBTables.BikeTrips.Departure),
-                                reader.GetDateTime(DBTables.BikeTrips.Return),
-                                reader.GetInt32(DBTables.BikeTrips.DepartureStationID),
-                                reader.GetString(DBTables.BikeTrips.DepartureStationName),
-                                reader.GetInt32(DBTables.BikeTrips.ReturnStationID),
-                                reader.GetString(DBTables.BikeTrips.ReturnStationName),
-                                reader.GetInt32(DBTables.BikeTrips.Distance),
-                                new TimeSpan(0, 0, reader.GetInt32(DBTables.BikeTrips.Duration))
+                                reader.GetInt32(DBTables.BikeTrips.Columns.ID),
+                                reader.GetDateTime(DBTables.BikeTrips.Columns.Departure),
+                                reader.GetDateTime(DBTables.BikeTrips.Columns.Return),
+                                reader.GetInt32(DBTables.BikeTrips.Columns.DepartureStationID),
+                                reader.GetInt32(DBTables.BikeTrips.Columns.ReturnStationID),
+                                reader.GetInt32(DBTables.BikeTrips.Columns.Distance),
+                                reader.GetInt32(DBTables.BikeTrips.Columns.Duration)
                                 ));
                         }
                     }
                 }
+
+                //TODO: get station datas and add references to them
 
                 return tripList;
             }
@@ -177,6 +189,51 @@ namespace ApiServer.Tools
                         cmd.Parameters.AddWithValue("@capacity", station.Capacity);
                         cmd.Parameters.AddWithValue("@posx", station.PosX);
                         cmd.Parameters.AddWithValue("@posy", station.PosY);
+
+                        cmd.ExecuteNonQuery();
+                    }
+
+                    //There's also CommitAsync(), but we have to send a status code back anyway so we might as well wait for this to complete.
+                    transaction.Commit();
+                }
+            }
+        }
+
+        /// <summary>
+        /// Puts stations into database. 
+        /// </summary>
+        /// <param name="trips"></param>
+        /// <param name="requireID"></param>
+        public static void InsertBikeTrips(IEnumerable<BikeTrip> trips, BikeTripInsertMode mode)
+        {
+            if(mode == BikeTripInsertMode.InsertOrUpdate)
+            {
+                throw new NotImplementedException();
+            }
+
+            using (MySqlConnection conn = new MySqlConnection(connectionString))
+            {
+                conn.Open();
+
+                using (MySqlCommand cmd = conn.CreateCommand())
+                using (MySqlTransaction transaction = conn.BeginTransaction())
+                using (MySqlDataAdapter adapter = new MySqlDataAdapter(cmd))
+                {
+                    cmd.CommandText = DBTables.BikeTrips.InsertBikeTripsWithoutIDQuery;
+
+                    //This might not be the best way to do a massive amount of inserts but it works well enough for now.
+                    foreach (BikeTrip trip in trips)
+                    {
+                        cmd.Parameters.Clear();
+
+                        //TODO: make sure AddWithValue() actually sanitizes everything
+                        //AddWithValue() should sanitize inputs by escaping all dangerous characters.
+                        cmd.Parameters.AddWithValue("@departuretime", trip.DepartureTime);
+                        cmd.Parameters.AddWithValue("@returntime", trip.ReturnTime);
+                        cmd.Parameters.AddWithValue("@departurestationid", trip.DepartureStationID);
+                        cmd.Parameters.AddWithValue("@returnstationid", trip.ReturnStationID);
+                        cmd.Parameters.AddWithValue("@distance", trip.Distance);
+                        cmd.Parameters.AddWithValue("@duration", (int)trip.Duration.TotalSeconds);
 
                         cmd.ExecuteNonQuery();
                     }

@@ -1,9 +1,4 @@
-﻿using ApiServer.Controllers;
-using ApiServer.Models;
-using MySql.Data.MySqlClient;
-using System.Data;
-using System.Reflection.PortableExecutable;
-
+﻿
 namespace ApiServer.Tools
 {
     /// <summary>
@@ -17,41 +12,57 @@ namespace ApiServer.Tools
         public static class BikeTrips
         {
             /// <summary>
+            /// Contains name strings of table columns.
+            /// </summary>
+            public static class Columns
+            {
+                public const string ID = "ID";
+                public const string Departure = "DepartureTime";
+                public const string Return = "ReturnTime";
+                public const string DepartureStationID = "DepartureStationID";
+                public const string ReturnStationID = "ReturnStationID";
+                public const string Distance = "Distance";
+                public const string Duration = "Duration";
+                public const string DepartureStationName = "DepartureStationName";
+                public const string ReturnStationName = "ReturnStationName";
+            }
+
+            /// <summary>
             /// Query that gets first 30 elements from biketrips table.
             /// </summary>
             public const string BikeTripQuery = "SELECT *\r\nFROM `biketrips`\r\nLIMIT 0 , 30";
 
             public const string BikeTripQueryWithStationNames =
                 "SELECT biketrips . * , " +                                 //Select bike trips
-                $"departurestation.name AS {DepartureStationName}, " +         //Rename departure station name field so that it is unique
-                $"returnstation.name AS {ReturnStationName}\r\n" +             //Rename return station name field so that it is unique
+                $"departurestation.name AS {Columns.DepartureStationName}, " +         //Rename departure station name field so that it is unique
+                $"returnstation.name AS {Columns.ReturnStationName}\r\n" +             //Rename return station name field so that it is unique
                 "FROM `biketrips`\r\n" +
-                $"LEFT JOIN bikestations AS departurestation ON biketrips.{DepartureStationID} = departurestation.id\r\n" +//Join departure station using renamed field
-                $"LEFT JOIN bikestations AS returnstation ON biketrips.{DepartureStationID} = returnstation.id\r\n" +         //Join return station using renamed field
+                $"LEFT JOIN bikestations AS departurestation ON biketrips.{Columns.DepartureStationID} = departurestation.id\r\n" +//Join departure station using renamed field
+                $"LEFT JOIN bikestations AS returnstation ON biketrips.{Columns.DepartureStationID} = returnstation.id\r\n" +         //Join return station using renamed field
                 "LIMIT 0 , 30";                                             //Limit to 30 elements
 
-            //Column names of biketrips table.
-            public const string ID = "ID";
-            public const string Departure = "DepartureTime";
-            public const string Return = "ReturnTime";
-            public const string DepartureStationID = "DepartureStationID";
-            public const string ReturnStationID = "ReturnStationID";
-            public const string Distance = "Distance";
-            public const string Duration = "Duration";
-            public const string DepartureStationName = "DepartureStationName";
-            public const string ReturnStationName = "ReturnStationName";
+            public const string InsertBikeTripsWithoutIDQuery =
+                $"INSERT INTO biketrips ({Columns.Departure}, {Columns.Return}, {Columns.DepartureStationID}, " +
+                $"{Columns.ReturnStationID}, {Columns.Distance}, {Columns.Duration})\r\n" +
+                "VALUES (@departuretime, @returntime, @departurestationid, @returnstationid, @distance, @duration)";
 
+            /// <summary>
+            /// Query that inserts or replaces the element in DB. Requires a valid id.
+            /// </summary>
+            public const string InsertOrUpdateBikeTripsQuery = "";
+
+            //TODO: replace this with a parametrized query
             public static string BuildBikeTripsFromStationQuery(int stationID)
             {
                 //This will be built every time the method is called. The compiler might reduce the concatenation amounts a bit.
                 return
                 "SELECT biketrips . * , " +                                 //Select bike trips
-                $"departurestation.name AS {DepartureStationName}, " +         //Rename departure station name field so that it is unique
-                $"returnstation.name AS {ReturnStationName}\r\n" +             //Rename return station name field so that it is unique
+                $"departurestation.name AS {Columns.DepartureStationName}, " +         //Rename departure station name field so that it is unique
+                $"returnstation.name AS {Columns.ReturnStationName}\r\n" +             //Rename return station name field so that it is unique
                 "FROM `biketrips`\r\n" +
-                $"LEFT JOIN bikestations AS departurestation ON biketrips.{DepartureStationID} = departurestation.id\r\n" +//Join departure station using renamed field
-                $"LEFT JOIN bikestations AS returnstation ON biketrips.{ReturnStationID} = returnstation.id\r\n" +         //Join return station using renamed field
-                $"WHERE {DepartureStationID} = {stationID} OR {ReturnStationID} = {stationID}\r\n" +    //Select only trips that come from or end at this station.
+                $"LEFT JOIN bikestations AS departurestation ON biketrips.{Columns.DepartureStationID} = departurestation.id\r\n" +//Join departure station using renamed field
+                $"LEFT JOIN bikestations AS returnstation ON biketrips.{Columns.ReturnStationID} = returnstation.id\r\n" +         //Join return station using renamed field
+                $"WHERE {Columns.DepartureStationID} = {stationID} OR {Columns.ReturnStationID} = {stationID}\r\n" +    //Select only trips that come from or end at this station.
                 "LIMIT 0 , 30";
             }
         }
@@ -120,18 +131,13 @@ namespace ApiServer.Tools
                 $"{Columns.AddressFin} = @addressfin, {Columns.AddressSwe} = @addressswe, {Columns.CityFin} = @cityfin, {Columns.CitySwe} = @cityswe, " +
                 $"{Columns.Operator} = @operator, {Columns.Capacity} = @capacity, {Columns.PosX} = @posx, {Columns.PosY} = @posy;";
 
+            //TODO: replace this with a parametrized query
             public static string BuildBikeStationQuery(int stationID)
             {
                 return
                     "SELECT * FROM `bikestations`\r\n" +
                     $"WHERE {Columns.ID} = {stationID}\r\n" +
                     "LIMIT 0 , 5"; //Limit max rows just in case
-            }
-
-            public static string BuildInsertQuery(IEnumerable<Station> stations)
-            {
-                MySqlDataAdapter query = new MySqlDataAdapter();
-                throw new NotImplementedException();
             }
 
             /*

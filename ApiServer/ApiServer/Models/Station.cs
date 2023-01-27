@@ -7,8 +7,8 @@ namespace ApiServer.Models
 {
     public class Station
     {
-        [Required, Range(0, int.MaxValue)]
-        public int ID { get; private set; }
+        [Required, Range(1, int.MaxValue)]
+        public int ID { get; private set; } = -1;
         /// <summary>
         /// Finnish name
         /// </summary>
@@ -40,14 +40,14 @@ namespace ApiServer.Models
         [StringLength(100)]
         public string OperatorName { get; private set; }
 
-        [Range(0, int.MaxValue)]
+        [Range(1, int.MaxValue)]
         public int Capacity { get; private set; }
 
         [Required]
-        public decimal PosX { get; private set; }
+        public decimal? PosX { get; private set; } = decimal.MinValue; //Has to be nullable to make the Required attribute work
 
         [Required]
-        public decimal PosY { get; private set; }
+        public decimal? PosY { get; private set; } = decimal.MinValue; //Has to be nullable to make the Required attribute work
 
         [JsonConstructor] //JsonSerializer can't deserialize things with multiple constructors without this thing
         public Station(
@@ -61,8 +61,8 @@ namespace ApiServer.Models
             string citySwe,
             string operatorName,
             int capacity,
-            decimal posX,
-            decimal posY
+            decimal? posX,
+            decimal? posY
             )
         {
             ID = id;

@@ -7,7 +7,6 @@ namespace ApiServer.Controllers
 {
     [ApiController]
     [Route("[controller]")]
-    //[ApiExplorerSettings(IgnoreApi = true)]
     public class BikeStationsController : ControllerBase
     {
         private readonly ILogger<BikeTripsController> _logger;
