@@ -19,14 +19,14 @@ namespace WebApp.Pages
         /// <summary>
         /// Contains station data if ErrorMessage isn't null.
         /// </summary>
-        public IEnumerable<BikeTrip> BikeTrips { get; private set; }
+        public BikeTripsWithStations BikeTrips { get; private set; }
 
         public BikeTripsModel(ILogger<IndexModel> logger, ApiService apiService)
         {
             _logger = logger;
 
             _apiService = apiService;
-            BikeTrips = new BikeTrip[0];
+            BikeTrips = new(new(), new());
         }
 
         public async Task OnGetAsync()
@@ -49,7 +49,7 @@ namespace WebApp.Pages
             }
 
             //Try to deserialize trips
-            IEnumerable<BikeTrip>? trips = await JsonSerializer.DeserializeAsync<BikeTrip[]>(json,
+            BikeTripsWithStations? trips = await JsonSerializer.DeserializeAsync<BikeTripsWithStations>(json,
             new JsonSerializerOptions
             {
                 PropertyNameCaseInsensitive = true
@@ -63,6 +63,9 @@ namespace WebApp.Pages
                 _logger.LogError(ErrorMessage);
                 return;
             }
+
+            //TODO: figure out how to make this happen automatically
+            trips.OnDeserialized();
 
             BikeTrips = trips;
         }

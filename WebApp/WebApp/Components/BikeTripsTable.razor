@@ -1,8 +1,9 @@
-﻿@using WebApp.Models
+﻿@using System.Globalization;
+@using WebApp.Models
 @using WebApp.Services
 
 <!-- This component renders a table of bike trips -->
-@if(BikeTrips == null || !BikeTrips.Any())
+@if(Dataset == null || !Dataset.BikeTrips.Any())
 {
     <p>No bike trips</p>
 }
@@ -19,18 +20,21 @@ else
             <th>Distance</th>
         </tr>
 
-        @foreach (Models.BikeTrip trip in BikeTrips)
+        @foreach (Models.BikeTrip trip in Dataset.BikeTrips)
         {
             //Distance and duration need some custom formatting
             string durationMessage = $"{trip.Duration.Minutes}m {trip.Duration.Seconds}s";
             string distanceMessage = $"{(trip.Distance / 1000f).ToString("0.00")} km";
 
+            string departureStationName = trip.DepartureStation != null ? trip.DepartureStation.NameFin : $"Missing station {trip.DepartureStationID}";
+            string returnStationName = trip.ReturnStation != null ? trip.ReturnStation.NameFin : $"Missing station {trip.ReturnStationID}";
+
             <tr>
                 <td>@trip.ID</td>
-                <td>@trip.DepartureTime</td>
-                <td>@trip.ReturnTime</td>
-                <td>trip.DepartureStationName TODO: fix</td>
-                <td>trip.ReturnStationName TODO: fix</td>
+                <td>@trip.DepartureTime.ToString(culture)</td>
+                <td>@trip.ReturnTime.ToString(culture)</td>
+                <td>@departureStationName</td>
+                <td>@returnStationName</td>
                 <td>@durationMessage</td>
                 <td>@distanceMessage</td>
             </tr>
@@ -40,5 +44,8 @@ else
 
 @code {
     [Parameter]
-    public IEnumerable<BikeTrip> BikeTrips { get; set; } = new BikeTrip[0];
+    public BikeTripsWithStations Dataset { get; set; } = new(new(), new());
+
+    //TODO: Get culture from user's browzer
+    private CultureInfo culture = new CultureInfo("fi-Fi");
 }

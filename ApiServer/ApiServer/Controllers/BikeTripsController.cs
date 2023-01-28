@@ -23,12 +23,12 @@ namespace ApiServer.Controllers
         }
 
         [HttpGet] //Using the HttpGet(name) override makes swagger die as it can't tell the difference between gets and puts
-        public ActionResult<IEnumerable<BikeTrip>> Get()
+        public ActionResult<BikeTripsWithStations> Get()
         {
             try
             {
-                IEnumerable<BikeTrip> trips = DatabaseHandler.GetTrips();
-                return new ActionResult<IEnumerable<BikeTrip>>(trips);
+                BikeTripsWithStations trips = DatabaseHandler.GetTrips();
+                return new ActionResult<BikeTripsWithStations>(trips);
             }
             catch (Exception ex)
             {

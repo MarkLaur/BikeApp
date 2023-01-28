@@ -17,12 +17,12 @@ namespace ApiServer.Controllers
         }
 
         [HttpGet(Name = "GetStationInfo")]
-        public ActionResult<IEnumerable<BikeTrip>> Get([FromRoute] int stationID)
+        public ActionResult<BikeTripsWithStations> Get([FromRoute] int stationID)
         {
             try
             {
-                IEnumerable<BikeTrip> trips = DatabaseHandler.GetTripsFromStation(stationID);
-                return new ActionResult<IEnumerable<BikeTrip>>(trips);
+                BikeTripsWithStations trips = DatabaseHandler.GetTripsFromStation(stationID);
+                return new ActionResult<BikeTripsWithStations>(trips);
             }
             catch (Exception ex)
             {

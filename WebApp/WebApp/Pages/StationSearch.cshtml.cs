@@ -21,7 +21,7 @@ namespace WebApp.Pages
 
         public int? SearchedStationID { get; private set; }
         public Station? SearchedStation { get; private set; }
-        public IEnumerable<BikeTrip>? StationTrips { get; private set; }
+        public BikeTripsWithStations? StationTrips { get; private set; }
 
         public StationSearchModel(ILogger<IndexModel> logger, ApiService apiService)
         {
@@ -45,7 +45,7 @@ namespace WebApp.Pages
 
             //Start both tasks
             Task<(bool, Station?, string)> stationTask = TryGetStation(stationID.Value);
-            Task<(bool, IEnumerable<BikeTrip>?, string)> tripsTask = TryGetBikeTrips(stationID.Value);
+            Task<(bool, BikeTripsWithStations?, string)> tripsTask = TryGetBikeTrips(stationID.Value);
 
             //Get station data
             (bool, Station?, string) result = await stationTask;
@@ -55,7 +55,7 @@ namespace WebApp.Pages
             }
 
             //Get trips from station
-            (bool, IEnumerable<BikeTrip>?, string) result2 = await tripsTask;
+            (bool, BikeTripsWithStations?, string) result2 = await tripsTask;
             if (result2.Item1)
             {
                 StationTrips = result2.Item2;
@@ -126,7 +126,7 @@ namespace WebApp.Pages
         /// <param name="trips"></param>
         /// <param name="userErrorMessage"></param>
         /// <returns></returns>
-        private async Task<(bool, IEnumerable<BikeTrip>?, string)> TryGetBikeTrips(int stationID)
+        private async Task<(bool, BikeTripsWithStations?, string)> TryGetBikeTrips(int stationID)
         {
             Stream json;
 
@@ -145,21 +145,22 @@ namespace WebApp.Pages
             }
 
             //Try to deserialize
-            IEnumerable<BikeTrip>? trips = await JsonSerializer.DeserializeAsync<BikeTrip[]>(json,
+            BikeTripsWithStations? trips = await JsonSerializer.DeserializeAsync<BikeTripsWithStations>(json,
             new JsonSerializerOptions
             {
                 PropertyNameCaseInsensitive = true
             });
 
             //trips will be null if serialization fails
-            if (trips != null)
-            {
-                return (true, trips, "");
-            }
-            else
+            if (trips == null)
             {
                 return (false, default, "Bike trip deserialization failed");
             }
+
+            //TODO: figure out how to make this happen automatically
+            trips.OnDeserialized();
+
+            return (true, trips, "");
         }
     }
 }
