@@ -27,44 +27,49 @@ namespace ApiServer.Tools
                 public const string ReturnStationName = "ReturnStationName";
             }
 
+            public const string TableName = "biketrips";
+
             /// <summary>
-            /// Query that gets first 30 elements from biketrips table.
+            /// Parametrized query that gets bike trips with joined station data. Contained parameters: @startIndex, @limit
             /// </summary>
-            public const string BikeTripQuery = "SELECT *\r\nFROM `biketrips`\r\nLIMIT 0 , 30";
+            public const string GetBikeTripsWithStationsQuery =
+                $"SELECT {TableName} . * , " +                                  //Select bike trips
+                $"departurestation.name AS {Columns.DepartureStationName}, " +  //Rename departure station name field so that it is unique
+                $"returnstation.name AS {Columns.ReturnStationName}\r\n" +      //Rename return station name field so that it is unique
+                $"FROM `{TableName}`\r\n" +
+                $"LEFT JOIN bikestations AS departurestation ON {TableName}.{Columns.DepartureStationID} = departurestation.id\r\n" +//Join departure station using renamed field
+                $"LEFT JOIN bikestations AS returnstation ON {TableName}.{Columns.ReturnStationID} = returnstation.id\r\n" +         //Join return station using renamed field
+                "LIMIT @startIndex , @limit";
 
-            public const string BikeTripQueryWithStationNames =
-                "SELECT biketrips . * , " +                                 //Select bike trips
-                $"departurestation.name AS {Columns.DepartureStationName}, " +         //Rename departure station name field so that it is unique
-                $"returnstation.name AS {Columns.ReturnStationName}\r\n" +             //Rename return station name field so that it is unique
-                "FROM `biketrips`\r\n" +
-                $"LEFT JOIN bikestations AS departurestation ON biketrips.{Columns.DepartureStationID} = departurestation.id\r\n" +//Join departure station using renamed field
-                $"LEFT JOIN bikestations AS returnstation ON biketrips.{Columns.DepartureStationID} = returnstation.id\r\n" +         //Join return station using renamed field
-                "LIMIT 0 , 30";                                             //Limit to 30 elements
-
+            /// <summary>
+            /// Parametrized query that inserts a bike trip without an id field (no overwrite).
+            /// Contained parameters: @departuretime, @returntime, @departurestationid, @returnstationid, @distance, @duration
+            /// </summary>
             public const string InsertBikeTripsWithoutIDQuery =
                 $"INSERT INTO biketrips ({Columns.Departure}, {Columns.Return}, {Columns.DepartureStationID}, " +
                 $"{Columns.ReturnStationID}, {Columns.Distance}, {Columns.Duration})\r\n" +
                 "VALUES (@departuretime, @returntime, @departurestationid, @returnstationid, @distance, @duration)";
 
             /// <summary>
-            /// Query that inserts or replaces the element in DB. Requires a valid id.
+            /// Parametrized that inserts or replaces the element in DB.
+            /// Contained parameters:
+            /// //TODO: implement this
             /// </summary>
             public const string InsertOrUpdateBikeTripsQuery = "";
 
-            //TODO: replace this with a parametrized query
-            public static string BuildBikeTripsFromStationQuery(int stationID)
-            {
-                //This will be built every time the method is called. The compiler might reduce the concatenation amounts a bit.
-                return
+            /// <summary>
+            /// Parametrized query that gets bike trips departing or returning to a station.
+            /// Contained parameters: @stationid, @startIndex, @limit
+            /// </summary>
+            public const string GetBikeTripsFromStationQuery =
                 "SELECT biketrips . * , " +                                 //Select bike trips
                 $"departurestation.name AS {Columns.DepartureStationName}, " +         //Rename departure station name field so that it is unique
                 $"returnstation.name AS {Columns.ReturnStationName}\r\n" +             //Rename return station name field so that it is unique
                 "FROM `biketrips`\r\n" +
                 $"LEFT JOIN bikestations AS departurestation ON biketrips.{Columns.DepartureStationID} = departurestation.id\r\n" +//Join departure station using renamed field
                 $"LEFT JOIN bikestations AS returnstation ON biketrips.{Columns.ReturnStationID} = returnstation.id\r\n" +         //Join return station using renamed field
-                $"WHERE {Columns.DepartureStationID} = {stationID} OR {Columns.ReturnStationID} = {stationID}\r\n" +    //Select only trips that come from or end at this station.
-                "LIMIT 0 , 30";
-            }
+                $"WHERE {Columns.DepartureStationID} = @stationid OR {Columns.ReturnStationID} = @stationid\r\n" +    //Select only trips that come from or end at this station.
+                "LIMIT @startIndex , @limit";
         }
 
         public static class BikeStations
@@ -86,99 +91,35 @@ namespace ApiServer.Tools
                 public const string Capacity = "Capacity";
                 public const string PosX = "PosX";
                 public const string PosY = "PosY";
-
-                /*
-                /// <summary>
-                /// Builds an array of the columns defined here.
-                /// </summary>
-                /// <returns></returns>
-                public static DataColumn[] BuildColumns()
-                {
-                    return new DataColumn[]
-                    {
-                    new DataColumn(ID, typeof(int)),
-                    new DataColumn(NameFin, typeof(string)),
-                    new DataColumn(NameSwe, typeof(string)),
-                    new DataColumn(Name, typeof(string)),
-                    new DataColumn(AddressFin, typeof(string)),
-                    new DataColumn(AddressSwe, typeof(string)),
-                    new DataColumn(CityFin, typeof(string)),
-                    new DataColumn(CitySwe, typeof(string)),
-                    new DataColumn(Operator, typeof(string)),
-                    new DataColumn(Capacity, typeof(int)),
-                    new DataColumn(PosX, typeof(double)),
-                    new DataColumn(PosY, typeof(double))
-                    };
-                }
-                */
             }
 
             public const string TableName = "bikestations";
 
+            /// <summary>
+            /// Parametrized query that gets all bike stations. Contained parameters: @startIndex, @limit
+            /// </summary>
             public const string GetBikeStationsQuery =
-                "SELECT bikestations . * " +
-                "FROM `bikestations`\r\n" +
-                "LIMIT 0 , 30";
+                $"SELECT * FROM `{TableName}`\r\n" +
+                "LIMIT @startIndex , @limit";
 
             /// <summary>
             /// A parametized SQL query that inserts a station into bikestations table. Updates existing key on duplicate key.
             /// Contained parameters: @id, @namefin, @nameswe, @name, @addressfin, @addressswe, @cityfin, @cityswe, @operator, @capacity, @posx, @posy
             /// </summary>
             public const string InsertBikeStationQuery =
-                "INSERT INTO bikestations\r\n" +
+                $"INSERT INTO '{TableName}'\r\n" +
                 "VALUES (@id, @namefin, @nameswe, @name, @addressfin, @addressswe, @cityfin, @cityswe, @operator, @capacity, @posx, @posy)\r\n" +
                 $"ON DUPLICATE KEY UPDATE {Columns.NameFin} = @namefin, {Columns.NameSwe} = @nameswe, {Columns.Name} = @name, " +
                 $"{Columns.AddressFin} = @addressfin, {Columns.AddressSwe} = @addressswe, {Columns.CityFin} = @cityfin, {Columns.CitySwe} = @cityswe, " +
                 $"{Columns.Operator} = @operator, {Columns.Capacity} = @capacity, {Columns.PosX} = @posx, {Columns.PosY} = @posy;";
 
-            //TODO: replace this with a parametrized query
-            public static string BuildBikeStationQuery(int stationID)
-            {
-                return
-                    "SELECT * FROM `bikestations`\r\n" +
-                    $"WHERE {Columns.ID} = {stationID}\r\n" +
-                    "LIMIT 0 , 5"; //Limit max rows just in case
-            }
-
-            /*
-            public static DataTable BuildStationsTable(IEnumerable<Station> stations)
-            {
-                DataTable stationsTable = BikeStationTable.BuildTable();
-
-                foreach (Station station in stations)
-                {
-                    DataRow row = stationsTable.NewRow();
-                    row[BikeStationTable.Columns.ID] = station.ID;
-                    row[BikeStationTable.Columns.NameFin] = station.NameFin;
-                    row[BikeStationTable.Columns.NameSwe] = station.NameSwe;
-                    row[BikeStationTable.Columns.Name] = station.Name;
-                    row[BikeStationTable.Columns.AddressFin] = station.AddressFin;
-                    row[BikeStationTable.Columns.AddressSwe] = station.AddressSwe;
-                    row[BikeStationTable.Columns.CityFin] = station.CityFin;
-                    row[BikeStationTable.Columns.CitySwe] = station.CitySwe;
-                    row[BikeStationTable.Columns.Operator] = station.OperatorName;
-                    row[BikeStationTable.Columns.Capacity] = station.Capacity;
-                    row[BikeStationTable.Columns.PosX] = station.PosX;
-                    row[BikeStationTable.Columns.PosY] = station.PosY;
-
-                    stationsTable.Rows.Add(row);
-                }
-
-                return stationsTable;
-            }
-
             /// <summary>
-            /// Builds a datatable that matches the definitions here.
+            /// Parametrized query that gets a bike station from database. Contained parameters: @id
             /// </summary>
-            /// <returns></returns>
-            public static DataTable BuildTable()
-            {
-                DataTable table = new DataTable(TableName);
-                table.Columns.AddRange(Columns.BuildColumns());
-
-                return table;
-            }
-            */
+            public const string GetBikeStationQuery =
+                    $"SELECT * FROM `{TableName}`\r\n" +
+                    $"WHERE {Columns.ID} = @id\r\n" +
+                    "LIMIT 1";
         }
     }
 }

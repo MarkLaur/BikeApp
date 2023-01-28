@@ -21,7 +21,7 @@ namespace ApiServer.Controllers
         {
             try
             {
-                IEnumerable<Station> stations = DatabaseHandler.GetStations();
+                IEnumerable<Station> stations = DatabaseHandler.GetStations(0, 100);
                 return new ActionResult<IEnumerable<Station>>(stations);
             }
             catch (Exception ex)

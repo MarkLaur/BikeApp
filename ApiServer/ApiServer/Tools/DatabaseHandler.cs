@@ -69,86 +69,119 @@ namespace ApiServer.Tools
             }
         }
 
-        private static BikeTripsWithStations GetTrips(string query)
+        /// <summary>
+        /// Tries to execute given sql command and to construct a BikeTripsWithStations from the data.
+        /// </summary>
+        /// <param name="cmd"></param>
+        /// <returns></returns>
+        private static BikeTripsWithStations GetTrips(MySqlCommand cmd)
+        {
+            List<BikeTrip> tripList = new();
+            Dictionary<int, Station> stations = new();
+
+            using (MySqlDataReader reader = cmd.ExecuteReader())
+            {
+                //TODO: check if all needed columns exist
+
+                //Read() return false when end of query is reached
+                while (reader.Read())
+                {
+                    //We don't have any nullable columns so null check shouldn't be needed.
+
+                    //Create a new BikeTrip with data from query and add it to trip list
+                    BikeTrip trip = new BikeTrip(
+                        reader.GetInt32(DBTables.BikeTrips.Columns.ID),
+                        reader.GetDateTime(DBTables.BikeTrips.Columns.Departure),
+                        reader.GetDateTime(DBTables.BikeTrips.Columns.Return),
+                        reader.GetInt32(DBTables.BikeTrips.Columns.DepartureStationID),
+                        reader.GetInt32(DBTables.BikeTrips.Columns.ReturnStationID),
+                        reader.GetInt32(DBTables.BikeTrips.Columns.Distance),
+                        reader.GetInt32(DBTables.BikeTrips.Columns.Duration)
+                        );
+
+                    //Check if departure station exists
+                    if (!stations.ContainsKey(trip.DepartureStationID))
+                    {
+                        //Build a new station and add it to the dictionary
+                        stations.Add(trip.DepartureStationID, new Station(
+                            trip.DepartureStationID,
+                            reader.GetString(DBTables.BikeTrips.Columns.DepartureStationName),
+                            "TODO", "TODO", "TODO", "TODO", "TODO", "TODO", "TODO", 0, 0, 0 //TODO: get these aswell
+                            ));
+                    }
+
+                    //Check if return station exists
+                    if (trip.ReturnStationID != trip.DepartureStationID //We already checked if this id exists in there
+                        && !stations.ContainsKey(trip.ReturnStationID))
+                    {
+                        //Build a new station and add it to the dictionary
+                        stations.Add(trip.ReturnStationID, new Station(
+                            trip.ReturnStationID,
+                            reader.GetString(DBTables.BikeTrips.Columns.ReturnStationName),
+                            "TODO", "TODO", "TODO", "TODO", "TODO", "TODO", "TODO", 0, 0, 0 //TODO: get these aswell
+                            ));
+                    }
+
+                    tripList.Add(trip);
+                }
+            }
+
+            return new BikeTripsWithStations(tripList, stations);
+        }
+        
+        /// <summary>
+        /// Gets all trips from a given page, limited by items per page.
+        /// </summary>
+        /// <param name="page"></param>
+        /// <param name="itemsPerPage"></param>
+        /// <returns></returns>
+        public static BikeTripsWithStations GetTrips(int page, int itemsPerPage)
         {
             using (MySqlConnection conn = new MySqlConnection(connectionString))
             {
                 conn.Open();
 
-                List<BikeTrip> tripList = new();
-                Dictionary<int, Station> stations = new();
-
                 using (MySqlCommand cmd = conn.CreateCommand())
                 {
-                    cmd.CommandText = query;
-                    using (MySqlDataReader reader = cmd.ExecuteReader())
-                    {
-                        //TODO: check if all needed columns exist
+                    cmd.CommandText = DBTables.BikeTrips.GetBikeTripsWithStationsQuery;
+                    cmd.Parameters.AddWithValue("@startIndex", page * itemsPerPage);
+                    cmd.Parameters.AddWithValue("@limit", itemsPerPage);
 
-                        //Read() return false when end of query is reached
-                        while (reader.Read())
-                        {
-                            //We don't have any nullable columns so null check shouldn't be needed.
-
-                            //Create a new BikeTrip with data from query and add it to trip list
-                            BikeTrip trip = new BikeTrip(
-                                reader.GetInt32(DBTables.BikeTrips.Columns.ID),
-                                reader.GetDateTime(DBTables.BikeTrips.Columns.Departure),
-                                reader.GetDateTime(DBTables.BikeTrips.Columns.Return),
-                                reader.GetInt32(DBTables.BikeTrips.Columns.DepartureStationID),
-                                reader.GetInt32(DBTables.BikeTrips.Columns.ReturnStationID),
-                                reader.GetInt32(DBTables.BikeTrips.Columns.Distance),
-                                reader.GetInt32(DBTables.BikeTrips.Columns.Duration)
-                                );
-
-                            //Check if departure station exists
-                            if (!stations.ContainsKey(trip.DepartureStationID))
-                            {
-                                //Build a new station and add it to the dictionary
-                                stations.Add(trip.DepartureStationID, new Station(
-                                    trip.DepartureStationID,
-                                    reader.GetString(DBTables.BikeTrips.Columns.DepartureStationName),
-                                    "TODO", "TODO", "TODO", "TODO", "TODO", "TODO", "TODO", 0, 0, 0 //TODO: get these aswell
-                                    ));
-                            }
-
-                            //Check if return station exists
-                            if (trip.ReturnStationID != trip.DepartureStationID //We already checked if this id exists in there
-                                && !stations.ContainsKey(trip.ReturnStationID))
-                            {
-                                //Build a new station and add it to the dictionary
-                                stations.Add(trip.ReturnStationID, new Station(
-                                    trip.ReturnStationID,
-                                    reader.GetString(DBTables.BikeTrips.Columns.ReturnStationName),
-                                    "TODO", "TODO", "TODO", "TODO", "TODO", "TODO", "TODO", 0, 0, 0 //TODO: get these aswell
-                                    ));
-                            }
-
-                            tripList.Add(trip);
-                        }
-                    }
+                    return GetTrips(cmd);
                 }
-
-                BikeTripsWithStations dataSet = new BikeTripsWithStations(tripList, stations);
-                return dataSet;
             }
         }
 
-        public static BikeTripsWithStations GetTrips()
+        /// <summary>
+        /// Gets all trips from given station, limited by page and itemsPerPage.
+        /// </summary>
+        /// <param name="stationID"></param>
+        /// <param name="page"></param>
+        /// <param name="itemsPerPage"></param>
+        /// <returns></returns>
+        public static BikeTripsWithStations GetTrips(int stationID, int page, int itemsPerPage)
         {
-            return GetTrips(DBTables.BikeTrips.BikeTripQueryWithStationNames);
-        }
+            using (MySqlConnection conn = new MySqlConnection(connectionString))
+            {
+                conn.Open();
 
-        public static BikeTripsWithStations GetTripsFromStation(int stationID)
-        {
-            return GetTrips(DBTables.BikeTrips.BuildBikeTripsFromStationQuery(stationID));
+                using (MySqlCommand cmd = conn.CreateCommand())
+                {
+                    cmd.CommandText = DBTables.BikeTrips.GetBikeTripsFromStationQuery;
+                    cmd.Parameters.AddWithValue("@stationid", stationID);
+                    cmd.Parameters.AddWithValue("@startIndex", page * itemsPerPage);
+                    cmd.Parameters.AddWithValue("@limit", itemsPerPage);
+
+                    return GetTrips(cmd);
+                }
+            }
         }
 
         /// <summary>
-        /// Gets stations from database
+        /// Gets stations from database. Page is zero indexed.
         /// </summary>
         /// <returns></returns>
-        public static IEnumerable<Station> GetStations()
+        public static IEnumerable<Station> GetStations(int page, int itemsPerPage)
         {
             using (MySqlConnection conn = new MySqlConnection(connectionString))
             {
@@ -159,6 +192,9 @@ namespace ApiServer.Tools
                 using (MySqlCommand cmd = conn.CreateCommand())
                 {
                     cmd.CommandText = DBTables.BikeStations.GetBikeStationsQuery;
+                    cmd.Parameters.AddWithValue("@startIndex", page * itemsPerPage);
+                    cmd.Parameters.AddWithValue("@limit", itemsPerPage);
+
                     using (MySqlDataReader reader = cmd.ExecuteReader())
                     {
                         //TODO: check if all needed columns exist
@@ -286,7 +322,9 @@ namespace ApiServer.Tools
 
                 using (MySqlCommand cmd = conn.CreateCommand())
                 {
-                    cmd.CommandText = DBTables.BikeStations.BuildBikeStationQuery(stationID);
+                    cmd.CommandText = DBTables.BikeStations.GetBikeStationQuery;
+                    cmd.Parameters.AddWithValue("@id", stationID);
+
                     using (MySqlDataReader reader = cmd.ExecuteReader())
                     {
                         //TODO: check if all needed columns exist
