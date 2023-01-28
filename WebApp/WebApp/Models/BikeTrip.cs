@@ -12,31 +12,35 @@ namespace WebApp.Models
 {
     public class BikeTrip
     {
-        public int ID { get; private set; } = -1;
+        //Required attribute doesn't work on value types so we have to set the range to exclude the default value
+
+        public int ID { get; private set; }
+
+        [Required, Range(typeof(DateTime), "1/1/0002", "1/1/2200")]
         public DateTime DepartureTime { get; private set; }
+        [Required, Range(typeof(DateTime), "1/1/0002", "1/1/2200")]
         public DateTime ReturnTime { get; private set; }
-
-        [Required, Range(0, int.MaxValue)]
+        [Required, Range(1, int.MaxValue)]
         public int DepartureStationID { get; private set; }
-
-        [StringLength(100)]
-        public string DepartureStationName { get; private set; }
-
-        [Required, Range(0, int.MaxValue)]
+        [Required, Range(1, int.MaxValue)]
         public int ReturnStationID { get; private set; }
-
-        [StringLength(100)]
-        public string ReturnStationName { get; private set; }
-
-        [Required, Range(0, int.MaxValue)]
         /// <summary>
         /// The trip's distance in meters.
         /// </summary>
+        [Required, Range(10, int.MaxValue)]
         public int Distance { get; private set; }
 
-        [Required]
+        [Required, Range(10, int.MaxValue)]
+        public int DurationSeconds { get; private set; }
+
+        //These are built from other data.
         //Duration is stored as seconds integer in db, we convert it to timespan for easier use.
+        [JsonIgnore]
         public TimeSpan Duration { get; private set; }
+        [JsonIgnore]
+        public Station? DepartureStation { get; private set; } = null;
+        [JsonIgnore]
+        public Station? ReturnStation { get; private set; } = null;
 
         [JsonConstructor]
         public BikeTrip(
@@ -45,44 +49,37 @@ namespace WebApp.Models
             DateTime departureTime,
             DateTime returnTime,
             int departureStationID,
-            string departureStationName,
             int returnStationID,
-            string returnStationName,
             int distance,
-            TimeSpan duration)
-            //Call the other constructor and add set the id field.
+            int durationSeconds)
+         //Call the other constructor and add set the id field.
          : this(
             departureTime,
             returnTime,
             departureStationID,
-            departureStationName,
             returnStationID,
-            returnStationName,
             distance,
-            duration)
+            durationSeconds)
         {
             ID = id;
         }
 
         public BikeTrip(
-            //The json deserializer wants parameter names to match field names. A workaround would be to have an empty constructor.
             DateTime departureTime,
             DateTime returnTime,
             int departureStationID,
-            string departureStationName,
             int returnStationID,
-            string returnStationName,
             int distance,
-            TimeSpan duration)
+            int durationSeconds)
         {
             DepartureTime = departureTime;
             ReturnTime = returnTime;
             DepartureStationID = departureStationID;
-            DepartureStationName = departureStationName;
             ReturnStationID = returnStationID;
-            ReturnStationName = returnStationName;
             Distance = distance;
-            Duration = duration;
+            DurationSeconds = durationSeconds;
+
+            Duration = TimeSpan.FromSeconds(durationSeconds);
         }
 
         /// <summary>
@@ -125,7 +122,7 @@ namespace WebApp.Models
                 || !int.TryParse(fields[2 + offset], out int departureStationID)
                 || !int.TryParse(fields[4 + offset], out int returnStationID)
                 || !int.TryParse(fields[6 + offset], out int distance)
-                || !TimeSpan.TryParse(fields[7 + offset], out TimeSpan duration)
+                || !int.TryParse(fields[7 + offset], out int duration)
                 )
             {
                 trip = null;
@@ -147,9 +144,7 @@ namespace WebApp.Models
                     departure,
                     returnTime,
                     departureStationID,
-                    "",
                     returnStationID,
-                    "",
                     distance,
                     duration
                     );
@@ -161,9 +156,7 @@ namespace WebApp.Models
                     departure,
                     returnTime,
                     departureStationID,
-                    "",
                     returnStationID,
-                    "",
                     distance,
                     duration
                     );
@@ -179,6 +172,26 @@ namespace WebApp.Models
             }
 
             return true;
+        }
+
+        public void SetDepartureStationsRef(Station departureStation)
+        {
+            if (DepartureStationID != departureStation.ID)
+            {
+                throw new ArgumentException("Station id must match");
+            }
+
+            DepartureStation = departureStation;
+        }
+
+        public void SetReturnStationRef(Station returnStation)
+        {
+            if (ReturnStationID != returnStation.ID)
+            {
+                throw new ArgumentException("Station id must match");
+            }
+
+            ReturnStation = returnStation;
         }
     }
 }

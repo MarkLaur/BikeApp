@@ -107,7 +107,8 @@ namespace WebApp.Services
 
         public async Task<HttpResponseMessage> UploadTrips(IEnumerable<BikeTrip> trips)
         {
-            throw new NotImplementedException();
+            HttpResponseMessage response = await client.PutAsJsonAsync(ApiDefinitions.BikeTripsUri, trips);
+            return response;
         }
         #endregion
     }

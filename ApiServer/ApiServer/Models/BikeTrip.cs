@@ -23,13 +23,13 @@ namespace ApiServer.Models
         /// <summary>
         /// The trip's distance in meters.
         /// </summary>
-        [Required, Range(1, int.MaxValue)]
+        [Required, Range(10, int.MaxValue)]
         public int Distance { get; private set; }
 
-        [Required, Range(1, int.MaxValue)]
+        [Required, Range(10, int.MaxValue)]
         public int DurationSeconds { get; private set; }
 
-        //These are build from other data.
+        //These are built from other data.
         //Duration is stored as seconds integer in db, we convert it to timespan for easier use.
         [JsonIgnore]
         public TimeSpan Duration { get; private set; }
@@ -48,8 +48,26 @@ namespace ApiServer.Models
             int returnStationID,
             int distance,
             int durationSeconds)
+         //Call the other constructor and add set the id field.
+         : this(
+            departureTime,
+            returnTime,
+            departureStationID,
+            returnStationID,
+            distance,
+            durationSeconds)
         {
             ID = id;
+        }
+
+        public BikeTrip(
+            DateTime departureTime,
+            DateTime returnTime,
+            int departureStationID,
+            int returnStationID,
+            int distance,
+            int durationSeconds)
+        {
             DepartureTime = departureTime;
             ReturnTime = returnTime;
             DepartureStationID = departureStationID;
