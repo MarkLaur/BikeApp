@@ -40,26 +40,34 @@ internal class Program
 
     private static void Main(string[] args)
     {
+        InitializeDB();
+
+        //Keep window open
+        Console.ReadKey();
+    }
+
+    private static void InitializeDB()
+    {
         //Setup user
-        if (TryOpenConnection(connectionStringNoDB))
+        if (TryOpenConnection(connectionStringNoDB, out string error))
         {
             Console.WriteLine("User is already setup.");
         }
-        else if (TryOpenConnection(uswbDefaultConnectionStringNoDB))
+        else if (TryOpenConnection(uswbDefaultConnectionStringNoDB, out error))
         {
-            Console.WriteLine("Logged in as default root user. Changing root password.");
+            Console.WriteLine($"Logged in as default root user. Changing root password. {error}");
 
             RunCommand($"SET PASSWORD FOR root@localhost = PASSWORD('{customRootPW}'); FLUSH PRIVILEGES;");
             conn.Close();
 
-            if (!TryOpenConnection(connectionStringNoDB))
+            if (!TryOpenConnection(connectionStringNoDB, out error))
             {
-                Console.WriteLine("Something went wrong with password change.");
+                Console.WriteLine($"Something went wrong with password change. {error}");
             }
         }
         else
         {
-            Console.WriteLine($"All connection tests failed. Cannot initialize database. Default test settings: {uswbDefaultConnectionStringNoDB}");
+            Console.WriteLine($"All connection tests failed. Cannot initialize database. Default test settings: {uswbDefaultConnectionStringNoDB}\n{error}");
             return;
         }
 
@@ -77,18 +85,18 @@ internal class Program
         conn.Close();
 
         //Test and open final connection
-        if (TryOpenConnection(connectionString))
+        if (TryOpenConnection(connectionString, out error))
         {
             Console.WriteLine("Bike app user and database ok.");
         }
         else
         {
-            Console.WriteLine("Bike app user or database is still not setup. Something has gone horribly wrong.\n");
+            Console.WriteLine($"Bike app user or database is still not setup. Something has gone horribly wrong.\n {error}");
             return;
         }
 
         //Get project folder
-        string? projectFolder = Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location);
+        string? projectFolder = AppContext.BaseDirectory;
 
         //Test and add bikestations table
         if (TestTable("bikestations"))
@@ -135,19 +143,23 @@ internal class Program
 
             RunCommand(tableCommand);
         }
+
+        Console.WriteLine("Database initialized. You can now close this window.");
     }
 
-    private static bool TryOpenConnection(string connectionString)
+    private static bool TryOpenConnection(string connectionString, out string error)
     {
         //Try to open main connection
         try
         {
             conn.ConnectionString = connectionString;
             conn.Open();
+            error = "";
             return true;
         }
-        catch
+        catch(Exception ex)
         {
+            error = ex.Message;
             return false;
         }
     }
