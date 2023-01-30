@@ -227,7 +227,6 @@ namespace ApiServer.Tools
 
                 using (MySqlCommand cmd = conn.CreateCommand())
                 using (MySqlTransaction transaction = conn.BeginTransaction())
-                using (MySqlDataAdapter adapter = new MySqlDataAdapter(cmd))
                 {
                     cmd.CommandText = DBTables.BikeStations.InsertBikeStationQuery;
 
@@ -265,53 +264,95 @@ namespace ApiServer.Tools
         /// </summary>
         /// <param name="trips"></param>
         /// <param name="requireID"></param>
-        public static async Task<int> InsertBikeTrips(IEnumerable<BikeTrip> trips, BikeTripInsertMode mode)
+        public static async Task<TripInsertResult> InsertBikeTrips(IEnumerable<BikeTrip> trips, BikeTripInsertMode mode, bool createMissingStations)
         {
-            if(mode == BikeTripInsertMode.InsertOrUpdate)
+            if(mode == BikeTripInsertMode.InsertOrUpdate || createMissingStations == true)
             {
                 throw new NotImplementedException();
             }
 
-            int badTrips = 0;
+            int missingStationInstances = 0;
+            int otherInvalidData = 0;
+
+            HashSet<int> uniqueStations = new();
+            HashSet<int> missingStations = new();
+
+            foreach(BikeTrip trip in trips)
+            {
+                uniqueStations.Add(trip.DepartureStationID);
+                if(trip.ReturnStationID != trip.DepartureStationID) uniqueStations.Add(trip.ReturnStationID);
+            }
 
             using (MySqlConnection conn = new MySqlConnection(connectionString))
             {
                 conn.Open();
 
                 using (MySqlCommand cmd = conn.CreateCommand())
-                using (MySqlTransaction transaction = conn.BeginTransaction())
-                using (MySqlDataAdapter adapter = new MySqlDataAdapter(cmd))
                 {
-                    cmd.CommandText = DBTables.BikeTrips.InsertBikeTripsWithoutIDQuery;
-
-                    //This might not be the best way to do a massive amount of inserts but it works well enough for now.
-                    foreach (BikeTrip trip in trips)
+                    //Get all stations that exist in database
+                    cmd.CommandText = DBTables.BikeStations.GetBikeStationQuery;
+                    foreach (int station in uniqueStations)
                     {
                         cmd.Parameters.Clear();
+                        cmd.Parameters.AddWithValue("@id", station);
 
-                        if (mode == BikeTripInsertMode.Insert && trip.ID != 0)
+                        using (MySqlDataReader reader = cmd.ExecuteReader())
                         {
-                            badTrips++;
-                            continue;
+                            if (!reader.Read())
+                            {
+                                missingStations.Add(station);
+                            }
                         }
-
-                        //TODO: make sure AddWithValue() actually sanitizes everything
-                        //AddWithValue() should sanitize inputs by escaping all dangerous characters.
-                        cmd.Parameters.AddWithValue("@departuretime", trip.DepartureTime);
-                        cmd.Parameters.AddWithValue("@returntime", trip.ReturnTime);
-                        cmd.Parameters.AddWithValue("@departurestationid", trip.DepartureStationID);
-                        cmd.Parameters.AddWithValue("@returnstationid", trip.ReturnStationID);
-                        cmd.Parameters.AddWithValue("@distance", trip.Distance);
-                        cmd.Parameters.AddWithValue("@duration", (int)trip.Duration.TotalSeconds);
-
-                        cmd.ExecuteNonQuery();
                     }
 
-                    await transaction.CommitAsync();
+                    //Insert all valid trips into database
+                    using (MySqlTransaction transaction = conn.BeginTransaction())
+                    {
+                        cmd.CommandText = DBTables.BikeTrips.InsertBikeTripsWithoutIDQuery;
+
+                        foreach (BikeTrip trip in trips)
+                        {
+                            //Check if station is missing
+                            if (missingStations.Contains(trip.DepartureStationID))
+                            {
+                                missingStationInstances++;
+                                continue;
+                            }
+
+                            //Check if other station is missing separately to correcly tick the tracker
+                            if (missingStations.Contains(trip.ReturnStationID))
+                            {
+                                missingStationInstances++;
+                                continue;
+                            }
+
+                            //Check if data is valid for the insert mode
+                            if (mode == BikeTripInsertMode.Insert && trip.ID != 0)
+                            {
+                                otherInvalidData++;
+                                continue;
+                            }
+
+                            cmd.Parameters.Clear();
+
+                            //TODO: make sure AddWithValue() actually sanitizes everything
+                            //AddWithValue() should sanitize inputs by escaping all dangerous characters.
+                            cmd.Parameters.AddWithValue("@departuretime", trip.DepartureTime);
+                            cmd.Parameters.AddWithValue("@returntime", trip.ReturnTime);
+                            cmd.Parameters.AddWithValue("@departurestationid", trip.DepartureStationID);
+                            cmd.Parameters.AddWithValue("@returnstationid", trip.ReturnStationID);
+                            cmd.Parameters.AddWithValue("@distance", trip.Distance);
+                            cmd.Parameters.AddWithValue("@duration", (int)trip.Duration.TotalSeconds);
+
+                            cmd.ExecuteNonQuery();
+                        }
+
+                        await transaction.CommitAsync();
+                    }
                 }
             }
 
-            return badTrips;
+            return new TripInsertResult(missingStationInstances, missingStations.Count, otherInvalidData);
         }
 
         public static bool TryGetStation(int stationID, [NotNullWhen(true), MaybeNullWhen(false)] out Station station)

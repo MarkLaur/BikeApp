@@ -9,12 +9,6 @@ namespace ApiServer.Controllers
     [Route("[controller]")]
     public class BikeTripsController : ControllerBase
     {
-        public class InfoResponse
-        {
-            public int BadTrips { get; set; }
-            public string Info { get; set; } = "";
-        }
-
         private readonly ILogger<BikeTripsController> _logger;
 
         public BikeTripsController(ILogger<BikeTripsController> logger)
@@ -39,7 +33,7 @@ namespace ApiServer.Controllers
         }
 
         [HttpPut, RequestSizeLimit(200 * 1000 * 1024)] //Using the HttpPut(name) override makes swagger die as it can't tell the difference between gets and puts
-        public ActionResult<InfoResponse> Put([FromBody] List<BikeTrip> trips)
+        public ActionResult<TripInsertResult> Put([FromBody] List<BikeTrip> trips)
         {
             try
             {
@@ -50,21 +44,11 @@ namespace ApiServer.Controllers
                 //TODO: handle the case where trips have defined id fields.
 
                 //DatabaseHandler handles sanitization
-                Task<int> insertTask = DatabaseHandler.InsertBikeTrips(trips, BikeTripInsertMode.Insert);
+                Task<TripInsertResult> insertTask = DatabaseHandler.InsertBikeTrips(trips, BikeTripInsertMode.Insert, false);
 
-                InfoResponse response = new InfoResponse();
-                int badTrips = insertTask.Result;
+                TripInsertResult result = insertTask.Result;
 
-                if(badTrips != 0)
-                {
-                    response.Info = "There were some bad trips. Trips are not allowed to have id fields if the insert mode is insert.";
-                }
-                else
-                {
-                    response.Info = "All trip data was ok";
-                }
-
-                return StatusCode(StatusCodes.Status200OK, response);
+                return StatusCode(StatusCodes.Status200OK, result);
             }
             catch (Exception ex)
             {
