@@ -107,7 +107,7 @@ namespace ApiServer.Tools
             /// Contained parameters: @id, @namefin, @nameswe, @name, @addressfin, @addressswe, @cityfin, @cityswe, @operator, @capacity, @posx, @posy
             /// </summary>
             public const string InsertBikeStationQuery =
-                $"INSERT INTO '{TableName}'\r\n" +
+                $"INSERT INTO {TableName}\r\n" +
                 "VALUES (@id, @namefin, @nameswe, @name, @addressfin, @addressswe, @cityfin, @cityswe, @operator, @capacity, @posx, @posy)\r\n" +
                 $"ON DUPLICATE KEY UPDATE {Columns.NameFin} = @namefin, {Columns.NameSwe} = @nameswe, {Columns.Name} = @name, " +
                 $"{Columns.AddressFin} = @addressfin, {Columns.AddressSwe} = @addressswe, {Columns.CityFin} = @cityfin, {Columns.CitySwe} = @cityswe, " +
