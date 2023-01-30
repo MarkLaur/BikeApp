@@ -73,6 +73,8 @@ namespace WebApp.Pages
                 return;
             }
 
+            _logger.LogInformation("File received. Starting CSV parsing.");
+
             //TODO: validate csv and upload data on client side. Also, give the user info about progress.
 
             if (!CsvParser.TryParseCSV(file.OpenReadStream(), out List<BikeTrip> trips, out int invalidLines, ","))
@@ -80,6 +82,8 @@ namespace WebApp.Pages
                 Message = $"Invalid CSV format.";
                 return;
             }
+
+            _logger.LogInformation("CSV parsed. Starting upload.");
 
             Message = $"Uploading bike trips: {trips.Count}. Invalid lines: {invalidLines}.";
 

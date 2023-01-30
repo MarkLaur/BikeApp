@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.SignalR.Protocol;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Primitives;
 using System;
 using System.Collections.Generic;
@@ -38,10 +39,12 @@ namespace WebApp.Services
 
         #endregion Static Implementation
 
+        private readonly ILogger<ApiService> _logger;
         public IWebHostEnvironment WebHostEnvironment { get; }
 
-        public ApiService(IWebHostEnvironment webHostEnvironment)
+        public ApiService(IWebHostEnvironment webHostEnvironment, ILogger<ApiService> logger)
         {
+            _logger = logger;
             WebHostEnvironment = webHostEnvironment;
         }
 

@@ -44,7 +44,8 @@ namespace ApiServer.Controllers
                 //TODO: handle the case where trips have defined id fields.
 
                 //DatabaseHandler handles sanitization
-                Task<TripInsertResult> insertTask = DatabaseHandler.InsertBikeTrips(trips, BikeTripInsertMode.Insert, false);
+                _logger.LogInformation("Trips received.");
+                Task<TripInsertResult> insertTask = DatabaseHandler.InsertBikeTrips(trips, BikeTripInsertMode.Insert, false, _logger);
 
                 TripInsertResult result = insertTask.Result;
 

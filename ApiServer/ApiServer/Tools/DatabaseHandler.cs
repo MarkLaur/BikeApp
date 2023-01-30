@@ -264,7 +264,7 @@ namespace ApiServer.Tools
         /// </summary>
         /// <param name="trips"></param>
         /// <param name="requireID"></param>
-        public static async Task<TripInsertResult> InsertBikeTrips(IEnumerable<BikeTrip> trips, BikeTripInsertMode mode, bool createMissingStations)
+        public static async Task<TripInsertResult> InsertBikeTrips(IEnumerable<BikeTrip> trips, BikeTripInsertMode mode, bool createMissingStations, ILogger logger)
         {
             if(mode == BikeTripInsertMode.InsertOrUpdate || createMissingStations == true)
             {
@@ -277,6 +277,8 @@ namespace ApiServer.Tools
             HashSet<int> uniqueStations = new();
             HashSet<int> missingStations = new();
 
+            //Build a list of stations referenced by trips
+            logger.LogInformation("Building relevant station hash set.");
             foreach(BikeTrip trip in trips)
             {
                 uniqueStations.Add(trip.DepartureStationID);
@@ -287,6 +289,8 @@ namespace ApiServer.Tools
             {
                 conn.Open();
 
+                //Check which of those stations can be found in database so that only try to insert valid trips
+                logger.LogInformation($"Fetching {uniqueStations.Count} relevant stations from db.");
                 using (MySqlCommand cmd = conn.CreateCommand())
                 {
                     //Get all stations that exist in database
@@ -310,8 +314,16 @@ namespace ApiServer.Tools
                     {
                         cmd.CommandText = DBTables.BikeTrips.InsertBikeTripsWithoutIDQuery;
 
+                        int total = trips.Count();
+                        int current = 0;
+
+                        logger.LogInformation($"Processing {total} trips.");
+
                         foreach (BikeTrip trip in trips)
                         {
+                            current++;
+                            if(current % 10000 == 0) logger.LogInformation($"Processing trips and inserting valid ones to db. ({current}/{total})");
+
                             //Check if station is missing
                             if (missingStations.Contains(trip.DepartureStationID))
                             {
@@ -351,6 +363,8 @@ namespace ApiServer.Tools
                     }
                 }
             }
+
+            logger.LogInformation($"All trips inserted.");
 
             return new TripInsertResult(missingStationInstances, missingStations.Count, otherInvalidData);
         }
