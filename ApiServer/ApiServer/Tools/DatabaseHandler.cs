@@ -39,7 +39,7 @@ namespace ApiServer.Tools
     public static class DatabaseHandler
     {
         //TODO: create a user for database read and update only
-        private const string connectionString = "Server=localhost; Port=3307; Database=bikeapp; Uid=root; Pwd=BikeAppUsbwpw;";
+        private const string connectionString = "Server=localhost; Port=3307; Database=bikeapp; Uid=root; Pwd=BikeAppUsbwpw; Convert Zero Datetime=True";
         private const string uswbDefaultConnectionString = "Server=localhost; Port=3307; Database=test; Uid=root; Pwd=usbw;";
 
         public static DBConnectionTestResult TestConnection()
