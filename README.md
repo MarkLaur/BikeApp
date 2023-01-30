@@ -8,6 +8,22 @@ Critique is welcome; I want to learn more.
 
 This was made as a pre-assignment for Solita Dev Academy.
 
+# Features
+- Separate web app, API server and MySQL server
+- Bike trip list view
+	- Pagination support not yet complete
+- Station list view
+	- Pagination support not yet complete
+- Station search
+	- Pagination support not yet complete
+	- Searchable by ID
+		- Name search not yet complete
+	- Shows station info
+	- Shows trips starting or ending at the station
+- Data uploader
+	- Supports csv input
+	- Manual data entry form not yet complete
+
 # The plan tm:
 - ASP.NET core webapp server that talks to the separate api server, full source code in git repo
 - Separate api server that talks to the database, full source code in git repo
@@ -29,3 +45,5 @@ This was made as a pre-assignment for Solita Dev Academy.
 # FAQ
 1. Why is the api server separate from the web app server?
     - Mostly just because I thought it would be neat. If I created an android app aswell then the web app server could go down without taking the api with it, leaving the android app operational. Also, I've read that in larger operations there are load balancing reasons to separate different aspects of the service.
+2. Why do the pages freeze if the API server is unresponsive?
+	- Because I haven't yet had the time to move the API requests to the client side of things. The pages are completely rendered server side, which takes forever if the API doesn't respond.
