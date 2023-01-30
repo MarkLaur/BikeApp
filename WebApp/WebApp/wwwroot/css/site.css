@@ -20,14 +20,3 @@ html {
 body {
   margin-bottom: 60px;
 }
-
-table {
-    table-layout: auto;
-}
-
-th, td {
-    text-align: center;
-    padding: 5px;
-    border: 1px solid black;
-    min-width: 25px;
-}

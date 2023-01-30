@@ -4,7 +4,8 @@
     ViewData["Title"] = "Bike Stations";
 }
 
-<h2>List of bike stations</h2>
+<div class="m-4">
+    <h2 class="mb-3">List of bike stations</h2>
 
 @if(Model.ErrorMessage != null)
 {
@@ -15,3 +16,4 @@ else
     //TODO: fetch data on client side
     <component type="typeof(Components.BikeStationsTable)" render-mode="Static" param-BikeStations="@Model.BikeStations" />
 }
+</div>

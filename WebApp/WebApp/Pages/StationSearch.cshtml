@@ -5,14 +5,14 @@
     ViewData["Title"] = "Station Search";
 }
 
-<h2>Station Search</h2>
-
-<!-- //TODO: allow user to search by station name -->
-<!-- //TODO: block special character and text input -->
-<form action="@Request.Path">
-    <input type="number" min="0" step="1" value="@Model.SearchedStationID" id="stationID" name="stationID" placeholder="enter station id" />
-    <input type="submit" value="Search" />
-</form>
+<div class="m-4">
+    <h2 class="mb-3">Station Search</h2>
+    <!-- //TODO: allow user to search by station name -->
+    <!-- //TODO: block special character and text input -->
+    <form class="mb-3" action="@Request.Path">
+        <input class="form-control mb-3" type="number" min="0" step="1" value="@Model.SearchedStationID" id="stationID" name="stationID" placeholder="enter station id" />
+        <button type="submit" class="btn btn-primary">Search</button>
+    </form>
 
 @if (Model.ErrorMessage != null)
 {
@@ -28,9 +28,14 @@ else
         if(Model.SearchedStation is Station station)
         {
             Station[] stations = new Station[] { station };
-            <component type="typeof(Components.BikeStationsTable)" render-mode="Static" param-BikeStations="@stations" />
+            <div class="mb-3">
+                <h3 class="mb-3">Found station</h3>
+                <component type="typeof(Components.BikeStationsTable)" render-mode="Static" param-BikeStations="@stations"/>
+            </div>
         }
 
+        <h3 class="mb-3">Trips from and to station</h3>
         <component type="typeof(Components.BikeTripsTable)" render-mode="Static" param-Dataset="@Model.StationTrips" />
     }
 }
+</div>
