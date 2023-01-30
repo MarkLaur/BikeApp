@@ -82,23 +82,27 @@ namespace WebApp.Pages
 
             Message = $"Uploading bike trips: {trips.Count}. Invalid lines: {invalidLines}.";
 
-            HttpResponseMessage response = await _apiService.UploadTrips(trips);
+            (HttpResponseMessage, TripInsertResult?) response = await _apiService.UploadTrips(trips);
 
-            if (response.IsSuccessStatusCode)
+            if (response.Item1.IsSuccessStatusCode)
             {
                 Message += $" Upload succesful.";
+
+                if (response.Item2 == null) Message += $" Reponse data block is null.";
+                else if (response.Item2.AnyBadData) Message += $" {response.Item2}";
+                else Message += $" {response.Item2}";
             }
-            else if (response.StatusCode == HttpStatusCode.BadRequest) //Api returns 400 if model validation fails
+            else if (response.Item1.StatusCode == HttpStatusCode.BadRequest) //Api returns 400 if model validation fails
             {
-                string text = await response.Content.ReadAsStringAsync();
+                string text = await response.Item1.Content.ReadAsStringAsync();
 
                 //TODO: Get broken fields from response and show them to user in a nice form to user
 
-                Message += $" Upload failed. api response: {response.StatusCode}.\n\nFull response:\n\n{text}";
+                Message += $" Upload failed. api response: {response.Item1.StatusCode}.\n\nFull response:\n\n{text}";
             }
             else
             {
-                Message += $" Upload failed. api response: {response.StatusCode}";
+                Message += $" Upload failed. api response: {response.Item1.StatusCode}";
             }
         }
     }

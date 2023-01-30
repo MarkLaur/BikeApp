@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net.Http.Headers;
+using System.Text.Json;
 using WebApp.Models;
 using WebApp.Pages;
 
@@ -105,10 +106,19 @@ namespace WebApp.Services
             return response;
         }
 
-        public async Task<HttpResponseMessage> UploadTrips(IEnumerable<BikeTrip> trips)
+        public async Task<(HttpResponseMessage, TripInsertResult?)> UploadTrips(IEnumerable<BikeTrip> trips)
         {
             HttpResponseMessage response = await client.PutAsJsonAsync(ApiDefinitions.BikeTripsUri, trips);
-            return response;
+            Stream responseContent = await response.Content.ReadAsStreamAsync();
+
+            //Attempt to deserialize
+            TripInsertResult? result = await JsonSerializer.DeserializeAsync<TripInsertResult>(responseContent,
+            new JsonSerializerOptions
+            {
+                PropertyNameCaseInsensitive = true
+            });
+
+            return (response, result);
         }
         #endregion
     }

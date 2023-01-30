@@ -2,7 +2,6 @@
 {
     public class TripInsertResult
     {
-        public bool AnyBadData => MissingStationInstances != 0 || TotalMissingStations != 0 || OtherInvalidData != 0;
         public int MissingStationInstances { get; private set; }
         public int TotalMissingStations { get; private set; }
         public int OtherInvalidData { get; private set; }
@@ -14,13 +13,16 @@
             TotalMissingStations = totalMissingStations;
             OtherInvalidData = otherInvalidData;
 
-            if (AnyBadData)
+            if (MissingStationInstances != 0 || TotalMissingStations != 0 || OtherInvalidData != 0)
             {
-                Message = "There was some bad trip data. Trips are not allowed to have id fields if the insert mode is insert.";
+                Message = "There was some bad trip data.";
+
+                if (MissingStationInstances != 0 || TotalMissingStations != 0) Message += " Stations must exist.";
+                if (OtherInvalidData != 0) Message += " Trips are not allowed to have id fields if the insert mode is insert.";
             }
             else
             {
-                Message = "All trip data was ok";
+                Message = "All trip data was ok.";
             }
         }
     }
