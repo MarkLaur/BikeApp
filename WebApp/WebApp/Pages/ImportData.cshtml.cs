@@ -13,6 +13,7 @@ using WebApp.Tools;
 
 namespace WebApp.Pages
 {
+    [RequestSizeLimit(200 * 1000 * 1024)]
     public class ImportDataModel : PageModel
     {
         private readonly ILogger<IndexModel> _logger;
