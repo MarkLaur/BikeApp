@@ -36,7 +36,7 @@ This was made as a pre-assignment for Solita Dev Academy.
 - Figure out how to send page to client early without data and do api requests late.
 - Pagination
 - DB user with limited permissions
-- DB initializer
+- Figure out why DB initializer build doesn't work but editor build does.
 
 # Installation instructions
 1. Download this github repository
