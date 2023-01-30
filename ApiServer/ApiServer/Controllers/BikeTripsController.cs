@@ -38,7 +38,7 @@ namespace ApiServer.Controllers
             }
         }
 
-        [HttpPut] //Using the HttpPut(name) override makes swagger die as it can't tell the difference between gets and puts
+        [HttpPut, RequestSizeLimit(200 * 1000 * 1024)] //Using the HttpPut(name) override makes swagger die as it can't tell the difference between gets and puts
         public ActionResult<InfoResponse> Put([FromBody] List<BikeTrip> trips)
         {
             try
