@@ -11,18 +11,21 @@ This was made as a pre-assignment for Solita Dev Academy.
 # Features
 - Separate web app, API server and MySQL server
 - Bike trip list view
-	- Pagination support not yet complete
+	- Pagination not yet implemented
 - Station list view
-	- Pagination support not yet complete
+	- Pagination not yet implemented
 - Station search
-	- Pagination support not yet complete
+	- Pagination not yet implemented
 	- Searchable by ID
-		- Name search not yet complete
+		- Name search not yet implemented
 	- Shows station info
 	- Shows trips starting or ending at the station
 - Data uploader
 	- Supports csv input
-	- Manual data entry form not yet complete
+	- 100MB bike trip file takes about 2 minutes to upload on my system.
+		- After clicking the button the site appears frozen, but it's working. You just have to wait. See the console windows for status updates.
+			- This will be fixed when I make the pages load stuff on the client side.
+	- Manual data entry form not yet implemented
 
 # The plan tm:
 - ASP.NET core webapp server that talks to the separate api server, full source code in git repo
@@ -31,6 +34,9 @@ This was made as a pre-assignment for Solita Dev Academy.
 
 # TODO
 - Figure out how to send page to client early without data and do api requests late.
+- Pagination
+- DB user with limited permissions
+- DB initializer
 
 # Installation instructions
 1. Download this github repository
