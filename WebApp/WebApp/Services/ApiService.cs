@@ -35,6 +35,10 @@ namespace WebApp.Services
             client.BaseAddress = ApiDefinitions.ApiServer;
             client.DefaultRequestHeaders.Add(ApiDefinitions.ApiKeyHeaderName, ApiDefinitions.ApiKey);
             client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+
+            //Set a 5 minute timeout because trip csv upload can take a couple minutes and our pages are dumb.
+            //TODO: Use AJAX to update upload page with upload progress information.
+            client.Timeout = new TimeSpan(0, 5, 0);
         }
 
         #endregion Static Implementation
