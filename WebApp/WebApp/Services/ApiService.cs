@@ -107,13 +107,13 @@ namespace WebApp.Services
         /// <param name="stations"></param>
         /// <returns></returns>
         /// <exception cref="NotImplementedException"></exception>
-        public async Task<HttpResponseMessage> UploadStations(IEnumerable<Station> stations)
+        public async Task<HttpResponseMessage> UploadStations(ICollection<Station> stations)
         {
             HttpResponseMessage response = await client.PutAsJsonAsync(ApiDefinitions.BikeStationsUri, stations);
             return response;
         }
 
-        public async Task<(HttpResponseMessage, TripInsertResult?)> UploadTrips(IEnumerable<BikeTrip> trips)
+        public async Task<(HttpResponseMessage, TripInsertResult?)> UploadTrips(ICollection<BikeTrip> trips)
         {
             HttpResponseMessage response = await client.PutAsJsonAsync(ApiDefinitions.BikeTripsUri, trips);
             Stream responseContent = await response.Content.ReadAsStreamAsync();

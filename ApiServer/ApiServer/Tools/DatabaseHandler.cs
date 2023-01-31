@@ -235,7 +235,7 @@ namespace ApiServer.Tools
         /// Gets stations from database. Page is zero indexed.
         /// </summary>
         /// <returns></returns>
-        public static async Task<IEnumerable<Station>> GetStations(int page, int itemsPerPage)
+        public static async Task<ICollection<Station>> GetStations(int page, int itemsPerPage)
         {
             using (MySqlConnection conn = new MySqlConnection(connectionString))
             {
@@ -273,7 +273,7 @@ namespace ApiServer.Tools
         /// </summary>
         /// <param name="stations"></param>
         /// <exception cref="NotImplementedException"></exception>
-        public static void InsertStations(IEnumerable<Station> stations)
+        public static void InsertStations(ICollection<Station> stations)
         {
             using (MySqlConnection conn = new MySqlConnection(connectionString))
             {
@@ -320,7 +320,7 @@ namespace ApiServer.Tools
         /// </summary>
         /// <param name="trips"></param>
         /// <param name="requireID"></param>
-        public static async Task<TripInsertResult> InsertBikeTrips(IEnumerable<BikeTrip> trips, BikeTripInsertMode mode, bool createMissingStations, ILogger logger)
+        public static async Task<TripInsertResult> InsertBikeTrips(ICollection<BikeTrip> trips, BikeTripInsertMode mode, bool createMissingStations, ILogger logger)
         {
             if(mode == BikeTripInsertMode.InsertOrUpdate || createMissingStations == true)
             {
@@ -372,7 +372,7 @@ namespace ApiServer.Tools
                     {
                         cmd.CommandText = DBTables.BikeTrips.InsertBikeTripsWithoutIDQuery;
 
-                        int total = trips.Count();
+                        int total = trips.Count;
                         int current = 0;
 
                         logger.LogInformation($"Processing {total} trips.");

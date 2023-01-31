@@ -20,7 +20,7 @@ namespace WebApp.Pages
         /// <summary>
         /// Contains station data if ErrorMessage isn't null.
         /// </summary>
-        public IEnumerable<Station> BikeStations { get; private set; }
+        public ICollection<Station> BikeStations { get; private set; }
 
         public BikeStationsModel(ILogger<IndexModel> logger, ApiService apiService)
         {

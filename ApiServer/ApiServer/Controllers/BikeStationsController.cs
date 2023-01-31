@@ -14,9 +14,9 @@ namespace ApiServer.Controllers
         public class BikeStationsResponse
         {
             public int TotalStations { get; private set; }
-            public IEnumerable<Station> Stations { get; private set; }
+            public ICollection<Station> Stations { get; private set; }
 
-            public BikeStationsResponse(int totalStations, IEnumerable<Station> stations)
+            public BikeStationsResponse(int totalStations, ICollection<Station> stations)
             {
                 TotalStations = totalStations;
                 Stations = stations;
@@ -37,7 +37,7 @@ namespace ApiServer.Controllers
             {
                 //Run database requests in parallel
                 Task<(bool, int)> countTask = DatabaseHandler.TryGetStationCount();
-                Task<IEnumerable<Station>> stationsTask = DatabaseHandler.GetStations(page - 1, 100);
+                Task<ICollection<Station>> stationsTask = DatabaseHandler.GetStations(page - 1, 100);
 
                 int rowCount = countTask.Result.Item2;
 

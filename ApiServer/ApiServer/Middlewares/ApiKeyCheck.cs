@@ -12,7 +12,7 @@ namespace ApiServer.Middlewares
     public class ApiKeyCheck
     {
         //List of defined api keys
-        private static readonly IEnumerable<string> APIKEYS = new HashSet<string>
+        private static readonly ICollection<string> APIKEYS = new HashSet<string>
         {
             "1111", //Web app key
             "2222"  //Android app key

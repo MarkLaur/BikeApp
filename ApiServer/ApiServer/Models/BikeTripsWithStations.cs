@@ -7,10 +7,10 @@ namespace ApiServer.Models
     /// </summary>
     public class BikeTripsWithStations
     {
-        public List<BikeTrip> BikeTrips { get; private set; }
+        public ICollection<BikeTrip> BikeTrips { get; private set; }
         public Dictionary<int, Station> Stations { get; private set; }
 
-        public BikeTripsWithStations(List<BikeTrip> bikeTrips, Dictionary<int, Station> stations)
+        public BikeTripsWithStations(ICollection<BikeTrip> bikeTrips, Dictionary<int, Station> stations)
         {
             BikeTrips = bikeTrips;
             Stations = stations;

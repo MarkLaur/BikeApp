@@ -5,10 +5,10 @@ namespace WebApp.Models.ApiResponses
     public class BikeStationsResponse
     {
         public int TotalBikeStations { get; private set; }
-        public IEnumerable<Station> Stations { get; private set; }
+        public ICollection<Station> Stations { get; private set; }
 
         [JsonConstructor]
-        public BikeStationsResponse(int totalBikeStations, IEnumerable<Station> stations)
+        public BikeStationsResponse(int totalBikeStations, ICollection<Station> stations)
         {
             TotalBikeStations = totalBikeStations;
             Stations = stations;
