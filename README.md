@@ -12,10 +12,8 @@ This was made as a pre-assignment for Solita Dev Academy.
 - Separate web app, API server and MySQL server
 - Bike trip list view
 	- Lists all bike trips and shows their data
-	- Pagination not yet implemented
 - Station list view
 	- Lists all stations and shows their data
-	- Pagination not yet implemented
 - Station search
 	- Searchable by ID
 		- Name search not yet implemented
@@ -31,7 +29,9 @@ This was made as a pre-assignment for Solita Dev Academy.
 	
 # TODO
 - Figure out how to send page to client early without data and do api requests late.
-- Pagination
+- Fix bike stations page layout
+- Add pagination to station search page
+- Station and trip entry form
 - Tests
 - DB user with limited permissions
 
