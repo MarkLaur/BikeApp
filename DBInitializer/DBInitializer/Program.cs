@@ -1,28 +1,7 @@
 ﻿using MySql.Data.MySqlClient;
-using Mysqlx.Expr;
-using MySqlX.XDevAPI.Relational;
-using Org.BouncyCastle.Asn1.Crmf;
-using System.Diagnostics;
-using System.Diagnostics.Metrics;
 
 internal class Program
 {
-    private enum DBConnectionTestResult
-    {
-        /// <summary>
-        /// Main connection test was succesful.
-        /// </summary>
-        Success,
-        /// <summary>
-        /// Main connection test failed but default connection test was succesful.
-        /// </summary>
-        DefaultConnectionSuccess,
-        /// <summary>
-        /// All connection tests failed.
-        /// </summary>
-        Failure,
-    }
-
     private const string customRootPW = "BikeAppUsbwpw";
     private const string dbName = "bikeapp";
 
@@ -46,6 +25,9 @@ internal class Program
         Console.ReadKey();
     }
 
+    /// <summary>
+    /// Initializes database root user, creates database and adds tables to it.
+    /// </summary>
     private static void InitializeDB()
     {
         //Setup user
@@ -144,7 +126,7 @@ internal class Program
             RunCommand(tableCommand);
         }
 
-        Console.WriteLine("Database initialized. You can now close this window.");
+        Console.WriteLine("Database initialized.\n\nYou can now close this window.");
     }
 
     private static bool TryOpenConnection(string connectionString, out string error)

@@ -53,3 +53,5 @@ This was made as a pre-assignment for Solita Dev Academy.
     - Mostly just because I thought it would be neat. If I created an android app aswell then the web app server could go down without taking the api with it, leaving the android app operational. Also, I've read that in larger operations there are load balancing reasons to separate different aspects of the service.
 2. Why do the pages freeze if the API server is unresponsive?
 	- Because I haven't yet had the time to move the API requests to the client side of things. The pages are completely rendered server side, which takes forever if the API doesn't respond.
+3. Why are the binaries so massive?
+	- The .NET runtime is included in the build so that the user doesn't have to worry about having it installed. Also, I couldn't enable unused code/library trimming because it broke the MySQL libary for some reason.
