@@ -138,22 +138,45 @@ namespace WebApp.Services
             Stream json = await GetJson(ub.Uri);
 
             //Try to deserialize trips
-            BikeTripsResponse? tripsResponse = await JsonSerializer.DeserializeAsync<BikeTripsResponse>(json,
+            BikeTripsResponse? response = await JsonSerializer.DeserializeAsync<BikeTripsResponse>(json,
             new JsonSerializerOptions
             {
                 PropertyNameCaseInsensitive = true
             });
 
             //Trips will be null if deserialization failed
-            if (tripsResponse == null)
+            if (response == null)
             {
                 throw new InvalidDataException("Couldn't deserialize api data.");
             }
 
             //TODO: figure out how to make this happen automatically
-            tripsResponse.Trips.OnDeserialized();
+            response.Trips.OnDeserialized();
 
-            return tripsResponse;
+            return response;
+        }
+
+        public async Task<BikeStationsResponse> GetBikeStations(int page)
+        {
+            UriBuilder ub = new UriBuilder(ApiDefinitions.BikeStationsUri);
+            ub.Query = $"?page={page}";
+
+            Stream json = await GetJson(ub.Uri);
+
+            //Try to deserialize trips
+            BikeStationsResponse? response = await JsonSerializer.DeserializeAsync<BikeStationsResponse>(json,
+            new JsonSerializerOptions
+            {
+                PropertyNameCaseInsensitive = true
+            });
+
+            //Trips will be null if deserialization failed
+            if (response == null)
+            {
+                throw new InvalidDataException("Couldn't deserialize api data.");
+            }
+
+            return response;
         }
         #endregion
     }

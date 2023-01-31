@@ -4,13 +4,13 @@ namespace WebApp.Models.ApiResponses
 {
     public class BikeStationsResponse
     {
-        public int TotalBikeStations { get; private set; }
+        public int TotalStations { get; private set; }
         public ICollection<Station> Stations { get; private set; }
 
         [JsonConstructor]
-        public BikeStationsResponse(int totalBikeStations, ICollection<Station> stations)
+        public BikeStationsResponse(int totalStations, ICollection<Station> stations)
         {
-            TotalBikeStations = totalBikeStations;
+            TotalStations = totalStations;
             Stations = stations;
         }
     }

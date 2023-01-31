@@ -26,7 +26,7 @@ namespace WebApp.Pages
         /// </summary>
         public BikeTripsWithStations BikeTrips { get; private set; }
 
-        public int Page { get; private set; }
+        public int CurrentPage { get; private set; }
 
         /// <summary>
         /// Will be null if there is no next page
@@ -48,12 +48,12 @@ namespace WebApp.Pages
 
         public async Task OnGetAsync([FromQuery, Range(1, int.MaxValue)] int page = 1)
         {
-            BikeTripsResponse tripsResponse;
+            BikeTripsResponse response;
 
             //TODO: Do query on client side using AJAX
             try
             {
-                tripsResponse = await _apiService.GetBikeTrips(page);
+                response = await _apiService.GetBikeTrips(page);
             }
             catch (Exception ex)
             {
@@ -63,12 +63,17 @@ namespace WebApp.Pages
                 return;
             }
 
-            Page = page;
+            //Elements per page is hardcoded in api.
+            //TODO: Make elements per page configurable.
+            int perPage = 100;
+            int lastPage = (response.TotalBikeTrips - 1) / perPage + 1;
+
+            CurrentPage = page;
             //Check if next and previous pages exist and add the query string
             if (page > 1) PreviousPage = Request.Path + $"?page={page - 1}";
-            if (page - 1 < tripsResponse.TotalBikeTrips) NextPage = Request.Path + $"?page={page + 1}";
+            if (page < lastPage) NextPage = Request.Path + $"?page={page + 1}";
 
-            BikeTrips = tripsResponse.Trips;
+            BikeTrips = response.Trips;
         }
     }
 }

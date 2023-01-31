@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using System.ComponentModel.DataAnnotations;
 using System.Text.Json;
 using WebApp.Models;
 using WebApp.Models.ApiResponses;
@@ -22,6 +23,18 @@ namespace WebApp.Pages
         /// </summary>
         public ICollection<Station> BikeStations { get; private set; }
 
+        public int CurrentPage { get; private set; }
+
+        /// <summary>
+        /// Will be null if there is no next page
+        /// </summary>
+        public string? NextPage { get; private set; } = null;
+
+        /// <summary>
+        /// Will be null if there is no previous page
+        /// </summary>
+        public string? PreviousPage { get; private set; } = null;
+
         public BikeStationsModel(ILogger<IndexModel> logger, ApiService apiService)
         {
             _logger = logger;
@@ -30,42 +43,36 @@ namespace WebApp.Pages
             BikeStations = new Station[0];
         }
 
-        public async Task OnGet()
+        public async Task OnGet([FromQuery, Range(1, int.MaxValue)] int page = 1)
         {
             //TODO: implement pagination
 
-            Stream json;
+            BikeStationsResponse response;
 
             //TODO: Do query on client side using AJAX
             try
             {
-                json = await _apiService.GetJson(ApiDefinitions.BikeStationsUri);
+                response = await _apiService.GetBikeStations(page);
             }
             catch (Exception ex)
             {
-                _logger.LogError("Bike station api request failed");
+                _logger.LogError("Bike station api request failed. " + ex.Message);
 
                 ErrorMessage = ex.Message;
                 return;
             }
 
-            //Try to deserialize
-            BikeStationsResponse? stationsResponse = await JsonSerializer.DeserializeAsync<BikeStationsResponse>(json,
-            new JsonSerializerOptions
-            {
-                PropertyNameCaseInsensitive = true
-            });
+            //Elements per page is hardcoded in api.
+            //TODO: Make elements per page configurable.
+            int perPage = 100;
+            int lastPage = (response.TotalStations - 1) / perPage + 1;
 
-            //Stations will be null if deserialization failed
-            if (stationsResponse == null)
-            {
-                //Bike trips should be an empty array already so no need to re-create it
-                ErrorMessage = "Bike station deserialization failed";
-                _logger.LogError(ErrorMessage);
-                return;
-            }
+            CurrentPage = page;
+            //Check if next and previous pages exist and add the query string
+            if (page > 1) PreviousPage = Request.Path + $"?page={page - 1}";
+            if (page < lastPage) NextPage = Request.Path + $"?page={page + 1}";
 
-            BikeStations = stationsResponse.Stations;
+            BikeStations = response.Stations;
         }
     }
 }

@@ -21,14 +21,18 @@
             }
             else
             {
-                <button class="btn btn-primary page-button" disabled">Previous page</button>
+                <button class="btn btn-primary page-button" disabled>Previous page</button>
             }
 
-            <h4>page @Model.Page</h4>
+            <h4>page @Model.CurrentPage</h4>
 
             @if(Model.NextPage != null)
             {
                 <button class="btn btn-primary page-button" onclick="location.href='@Model.NextPage'">Next page</button>
+            }
+            else
+            {
+                <button class="btn btn-primary page-button" disabled>Next page</button>
             }
         </div>
 
