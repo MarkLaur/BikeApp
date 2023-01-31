@@ -11,32 +11,29 @@ This was made as a pre-assignment for Solita Dev Academy.
 # Features
 - Separate web app, API server and MySQL server
 - Bike trip list view
+	- Lists all bike trips and shows their data
 	- Pagination not yet implemented
 - Station list view
+	- Lists all stations and shows their data
 	- Pagination not yet implemented
 - Station search
-	- Pagination not yet implemented
 	- Searchable by ID
 		- Name search not yet implemented
 	- Shows station info
 	- Shows trips starting or ending at the station
+	- Pagination not yet implemented
 - Data uploader
 	- Supports csv input
 	- 100MB bike trip file takes about 2 minutes to upload on my system.
 		- After clicking the button the site appears frozen, but it's working. You just have to wait. See the console windows for status updates.
 			- This will be fixed when I make the pages load stuff on the client side.
 	- Manual data entry form not yet implemented
-
-# The plan tm:
-- ASP.NET core webapp server that talks to the separate api server, full source code in git repo
-- Separate api server that talks to the database, full source code in git repo
-- Database implemented with usbwebserver: only table export and setup script in git repo, user will download usbwebserver and run the not-yet-implemented setup script
-
+	
 # TODO
 - Figure out how to send page to client early without data and do api requests late.
 - Pagination
+- Tests
 - DB user with limited permissions
-- Figure out why DB initializer build doesn't work but editor build does.
 
 # Installation instructions
 1. Download this github repository
@@ -50,7 +47,7 @@ This was made as a pre-assignment for Solita Dev Academy.
 
 # FAQ
 1. Why is the api server separate from the web app server?
-    - Mostly just because I thought it would be neat. If I created an android app aswell then the web app server could go down without taking the api with it, leaving the android app operational. Also, I've read that in larger operations there are load balancing reasons to separate different aspects of the service.
+    - Mostly just because I thought it would be neat. If I created an android app as well then the web app server could go down without taking the api with it, leaving the android app operational.
 2. Why do the pages freeze if the API server is unresponsive?
 	- Because I haven't yet had the time to move the API requests to the client side of things. The pages are completely rendered server side, which takes forever if the API doesn't respond.
 3. Why are the binaries so massive?
