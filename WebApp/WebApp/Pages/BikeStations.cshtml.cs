@@ -24,6 +24,7 @@ namespace WebApp.Pages
         public ICollection<Station> BikeStations { get; private set; }
 
         public int CurrentPage { get; private set; }
+        public int LastPage { get; private set; }
 
         /// <summary>
         /// Will be null if there is no next page
@@ -65,12 +66,12 @@ namespace WebApp.Pages
             //Elements per page is hardcoded in api.
             //TODO: Make elements per page configurable.
             int perPage = 100;
-            int lastPage = (response.TotalStations - 1) / perPage + 1;
+            LastPage = (response.TotalStations - 1) / perPage + 1;
 
             CurrentPage = page;
             //Check if next and previous pages exist and add the query string
             if (page > 1) PreviousPage = Request.Path + $"?page={page - 1}";
-            if (page < lastPage) NextPage = Request.Path + $"?page={page + 1}";
+            if (page < LastPage) NextPage = Request.Path + $"?page={page + 1}";
 
             BikeStations = response.Stations;
         }

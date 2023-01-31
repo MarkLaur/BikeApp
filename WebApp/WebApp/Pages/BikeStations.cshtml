@@ -5,7 +5,7 @@
 }
 
 <div class="m-4">
-    <h2 class="mb-3">List of bike stations</h2>
+    <h2 class="mb-4">List of bike stations</h2>
 
     @if(Model.ErrorMessage != null)
     {
@@ -24,7 +24,7 @@
                 <button class="btn btn-primary page-button" disabled>Previous page</button>
             }
 
-            <h4>page @Model.CurrentPage</h4>
+            <h4>Page @Model.CurrentPage / @Model.LastPage</h4>
 
             @if (Model.NextPage != null)
             {

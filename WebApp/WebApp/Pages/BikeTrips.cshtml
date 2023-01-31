@@ -24,7 +24,7 @@
                 <button class="btn btn-primary page-button" disabled>Previous page</button>
             }
 
-            <h4>page @Model.CurrentPage</h4>
+            <h4>Page @Model.CurrentPage / @Model.LastPage</h4>
 
             @if(Model.NextPage != null)
             {
@@ -36,9 +36,7 @@
             }
         </div>
 
-        <div class="border">
-            <!--//TODO: fetch data on client side -->
+        <!--//TODO: fetch data on client side -->
         <component type="typeof(Components.BikeTripsTable)" render-mode="Static" param-Dataset="@Model.BikeTrips"/>
-        </div>
     }
 </div>

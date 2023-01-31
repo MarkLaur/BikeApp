@@ -27,6 +27,7 @@ namespace WebApp.Pages
         public BikeTripsWithStations BikeTrips { get; private set; }
 
         public int CurrentPage { get; private set; }
+        public int LastPage { get; private set; }
 
         /// <summary>
         /// Will be null if there is no next page
@@ -66,12 +67,12 @@ namespace WebApp.Pages
             //Elements per page is hardcoded in api.
             //TODO: Make elements per page configurable.
             int perPage = 100;
-            int lastPage = (response.TotalBikeTrips - 1) / perPage + 1;
+            LastPage = (response.TotalBikeTrips - 1) / perPage + 1;
 
             CurrentPage = page;
             //Check if next and previous pages exist and add the query string
             if (page > 1) PreviousPage = Request.Path + $"?page={page - 1}";
-            if (page < lastPage) NextPage = Request.Path + $"?page={page + 1}";
+            if (page < LastPage) NextPage = Request.Path + $"?page={page + 1}";
 
             BikeTrips = response.Trips;
         }
