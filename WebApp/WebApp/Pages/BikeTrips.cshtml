@@ -5,15 +5,36 @@
 }
 
 <div class="m-4">
-    <h2 class="mb-3">List of trips</h2>
+    <h2 class="mb-4">List of trips</h2>
 
-@if (Model.ErrorMessage != null)
-{
-    <p>@Model.ErrorMessage</p>
-}
-else
-{
-    //TODO: fetch data on client side
-    <component type="typeof(Components.BikeTripsTable)" render-mode="Static" param-Dataset="@Model.BikeTrips"/>
-}
+    @if (Model.ErrorMessage != null)
+    {
+        <p>@Model.ErrorMessage</p>
+    }
+    else
+    {
+        <div class="mb-2 page-div">
+
+            @if(Model.PreviousPage != null)
+            {
+                <button class="btn btn-primary page-button" onclick="location.href='@Model.PreviousPage'">Previous page</button>
+            }
+            else
+            {
+                <button class="btn btn-primary page-button" disabled">Previous page</button>
+            }
+
+            <h4>page @Model.Page</h4>
+
+            @if(Model.NextPage != null)
+            {
+                <button class="btn btn-primary page-button" onclick="location.href='@Model.NextPage'">Next page</button>
+            }
+        </div>
+
+        <div class="border">
+            <!--//TODO: fetch data on client side -->
+        <component type="typeof(Components.BikeTripsTable)" render-mode="Static" param-Dataset="@Model.BikeTrips"/>
+        </div>
+    }
 </div>

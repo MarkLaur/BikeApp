@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.SignalR.Protocol;
+using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Primitives;
 using System;
@@ -9,6 +10,7 @@ using System.Linq;
 using System.Net.Http.Headers;
 using System.Text.Json;
 using WebApp.Models;
+using WebApp.Models.ApiResponses;
 using WebApp.Pages;
 
 namespace WebApp.Services
@@ -126,6 +128,32 @@ namespace WebApp.Services
             });
 
             return (response, result);
+        }
+
+        public async Task<BikeTripsResponse> GetBikeTrips(int page)
+        {
+            UriBuilder ub = new UriBuilder(ApiDefinitions.BikeTripsUri);
+            ub.Query = $"?page={page}";
+
+            Stream json = await GetJson(ub.Uri);
+
+            //Try to deserialize trips
+            BikeTripsResponse? tripsResponse = await JsonSerializer.DeserializeAsync<BikeTripsResponse>(json,
+            new JsonSerializerOptions
+            {
+                PropertyNameCaseInsensitive = true
+            });
+
+            //Trips will be null if deserialization failed
+            if (tripsResponse == null)
+            {
+                throw new InvalidDataException("Couldn't deserialize api data.");
+            }
+
+            //TODO: figure out how to make this happen automatically
+            tripsResponse.Trips.OnDeserialized();
+
+            return tripsResponse;
         }
         #endregion
     }

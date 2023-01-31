@@ -1,6 +1,10 @@
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using Microsoft.AspNetCore.Mvc.TagHelpers;
+using System.ComponentModel.DataAnnotations;
 using System.Text.Json;
+using System.Web;
 using WebApp.Models;
 using WebApp.Models.ApiResponses;
 using WebApp.Services;
@@ -22,6 +26,18 @@ namespace WebApp.Pages
         /// </summary>
         public BikeTripsWithStations BikeTrips { get; private set; }
 
+        public int Page { get; private set; }
+
+        /// <summary>
+        /// Will be null if there is no next page
+        /// </summary>
+        public string? NextPage { get; private set; } = null;
+
+        /// <summary>
+        /// Will be null if there is no previous page
+        /// </summary>
+        public string? PreviousPage { get; private set; } = null;
+
         public BikeTripsModel(ILogger<IndexModel> logger, ApiService apiService)
         {
             _logger = logger;
@@ -30,43 +46,27 @@ namespace WebApp.Pages
             BikeTrips = new(new(), new());
         }
 
-        public async Task OnGetAsync()
+        public async Task OnGetAsync([FromQuery, Range(1, int.MaxValue)] int page = 1)
         {
-            //TODO: implement pagination
-
-            Stream json;
+            BikeTripsResponse tripsResponse;
 
             //TODO: Do query on client side using AJAX
             try
             {
-                json = await _apiService.GetJson(ApiDefinitions.BikeTripsUri);
+                tripsResponse = await _apiService.GetBikeTrips(page);
             }
             catch (Exception ex)
             {
-                _logger.LogError("Bike trips api request failed");
+                _logger.LogError("Bike trips api request failed. " + ex.Message);
 
                 ErrorMessage = ex.Message;
                 return;
             }
 
-            //Try to deserialize trips
-            BikeTripsResponse? tripsResponse = await JsonSerializer.DeserializeAsync<BikeTripsResponse>(json,
-            new JsonSerializerOptions
-            {
-                PropertyNameCaseInsensitive = true
-            });
-
-            //Trips will be null if deserialization failed
-            if (tripsResponse == null)
-            {
-                //Bike trips should be an empty array already so no need to re-create it
-                ErrorMessage = "Bike trip deserialization failed";
-                _logger.LogError(ErrorMessage);
-                return;
-            }
-
-            //TODO: figure out how to make this happen automatically
-            tripsResponse.Trips.OnDeserialized();
+            Page = page;
+            //Check if next and previous pages exist and add the query string
+            if (page > 1) PreviousPage = Request.Path + $"?page={page - 1}";
+            if (page - 1 < tripsResponse.TotalBikeTrips) NextPage = Request.Path + $"?page={page + 1}";
 
             BikeTrips = tripsResponse.Trips;
         }
