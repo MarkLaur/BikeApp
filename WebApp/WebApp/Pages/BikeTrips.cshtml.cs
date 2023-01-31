@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using System.Text.Json;
 using WebApp.Models;
+using WebApp.Models.ApiResponses;
 using WebApp.Services;
 
 namespace WebApp.Pages
@@ -49,14 +50,14 @@ namespace WebApp.Pages
             }
 
             //Try to deserialize trips
-            BikeTripsWithStations? trips = await JsonSerializer.DeserializeAsync<BikeTripsWithStations>(json,
+            BikeTripsResponse? tripsResponse = await JsonSerializer.DeserializeAsync<BikeTripsResponse>(json,
             new JsonSerializerOptions
             {
                 PropertyNameCaseInsensitive = true
             });
 
             //Trips will be null if deserialization failed
-            if (trips == null)
+            if (tripsResponse == null)
             {
                 //Bike trips should be an empty array already so no need to re-create it
                 ErrorMessage = "Bike trip deserialization failed";
@@ -65,9 +66,9 @@ namespace WebApp.Pages
             }
 
             //TODO: figure out how to make this happen automatically
-            trips.OnDeserialized();
+            tripsResponse.Trips.OnDeserialized();
 
-            BikeTrips = trips;
+            BikeTrips = tripsResponse.Trips;
         }
     }
 }

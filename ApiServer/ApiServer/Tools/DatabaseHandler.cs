@@ -1,8 +1,10 @@
 ﻿using ApiServer.Controllers;
 using ApiServer.Models;
+using Microsoft.AspNetCore.Mvc.RazorPages;
 using MySql.Data.MySqlClient;
 using MySqlX.XDevAPI;
 using System.Data;
+using System.Data.Common;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 
@@ -74,12 +76,12 @@ namespace ApiServer.Tools
         /// </summary>
         /// <param name="cmd"></param>
         /// <returns></returns>
-        private static BikeTripsWithStations GetTrips(MySqlCommand cmd)
+        private static async Task<BikeTripsWithStations> GetTrips(MySqlCommand cmd)
         {
             List<BikeTrip> tripList = new();
             Dictionary<int, Station> stations = new();
 
-            using (MySqlDataReader reader = cmd.ExecuteReader())
+            using (DbDataReader reader = await cmd.ExecuteReaderAsync())
             {
                 //TODO: check if all needed columns exist
 
@@ -128,6 +130,30 @@ namespace ApiServer.Tools
 
             return new BikeTripsWithStations(tripList, stations);
         }
+
+        public static async Task<(bool, int)> TryGetTripCount()
+        {
+            using (MySqlConnection conn = new MySqlConnection(connectionString))
+            {
+                await conn.OpenAsync();
+
+                using (MySqlCommand cmd = conn.CreateCommand())
+                {
+                    cmd.CommandText = DBTables.BikeTrips.RowCountQuery;
+                    using (DbDataReader reader = await cmd.ExecuteReaderAsync())
+                    {
+                        if (reader.Read())
+                        {
+                            return (true, reader.GetInt32("rows"));
+                        }
+                        else
+                        {
+                            return (false, 0);
+                        }
+                    }
+                }
+            }
+        }
         
         /// <summary>
         /// Gets all trips from a given page, limited by items per page.
@@ -135,11 +161,11 @@ namespace ApiServer.Tools
         /// <param name="page"></param>
         /// <param name="itemsPerPage"></param>
         /// <returns></returns>
-        public static BikeTripsWithStations GetTrips(int page, int itemsPerPage)
+        public static async Task<BikeTripsWithStations> GetTrips(int page, int itemsPerPage)
         {
             using (MySqlConnection conn = new MySqlConnection(connectionString))
             {
-                conn.Open();
+                await conn.OpenAsync();
 
                 using (MySqlCommand cmd = conn.CreateCommand())
                 {
@@ -147,7 +173,7 @@ namespace ApiServer.Tools
                     cmd.Parameters.AddWithValue("@startIndex", page * itemsPerPage);
                     cmd.Parameters.AddWithValue("@limit", itemsPerPage);
 
-                    return GetTrips(cmd);
+                    return await GetTrips(cmd);
                 }
             }
         }
@@ -159,11 +185,11 @@ namespace ApiServer.Tools
         /// <param name="page"></param>
         /// <param name="itemsPerPage"></param>
         /// <returns></returns>
-        public static BikeTripsWithStations GetTrips(int stationID, int page, int itemsPerPage)
+        public static async Task<BikeTripsWithStations> GetTrips(int stationID, int page, int itemsPerPage)
         {
             using (MySqlConnection conn = new MySqlConnection(connectionString))
             {
-                conn.Open();
+                await conn.OpenAsync();
 
                 using (MySqlCommand cmd = conn.CreateCommand())
                 {
@@ -172,7 +198,35 @@ namespace ApiServer.Tools
                     cmd.Parameters.AddWithValue("@startIndex", page * itemsPerPage);
                     cmd.Parameters.AddWithValue("@limit", itemsPerPage);
 
-                    return GetTrips(cmd);
+                    return await GetTrips(cmd);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Returns a (success, rowCount) tuple.
+        /// </summary>
+        /// <returns></returns>
+        public static async Task<(bool, int)> TryGetStationCount()
+        {
+            using (MySqlConnection conn = new MySqlConnection(connectionString))
+            {
+                await conn.OpenAsync();
+
+                using (MySqlCommand cmd = conn.CreateCommand())
+                {
+                    cmd.CommandText = DBTables.BikeStations.RowCountQuery;
+                    using (DbDataReader reader = await cmd.ExecuteReaderAsync())
+                    {
+                        if (reader.Read())
+                        {
+                            return (true, reader.GetInt32("rows"));
+                        }
+                        else
+                        {
+                            return (false, 0);
+                        }
+                    }
                 }
             }
         }
@@ -181,11 +235,11 @@ namespace ApiServer.Tools
         /// Gets stations from database. Page is zero indexed.
         /// </summary>
         /// <returns></returns>
-        public static IEnumerable<Station> GetStations(int page, int itemsPerPage)
+        public static async Task<IEnumerable<Station>> GetStations(int page, int itemsPerPage)
         {
             using (MySqlConnection conn = new MySqlConnection(connectionString))
             {
-                conn.Open();
+                await conn.OpenAsync();
 
                 List<Station> stationList = new List<Station>();
 
@@ -224,6 +278,8 @@ namespace ApiServer.Tools
             using (MySqlConnection conn = new MySqlConnection(connectionString))
             {
                 conn.Open();
+
+                //TODO: Do transactions asnychronously in batches of 100 inserts each
 
                 using (MySqlCommand cmd = conn.CreateCommand())
                 using (MySqlTransaction transaction = conn.BeginTransaction())
@@ -308,6 +364,8 @@ namespace ApiServer.Tools
                             }
                         }
                     }
+
+                    //TODO: Do transactions asnychronously in batches of 100 inserts each
 
                     //Insert all valid trips into database
                     using (MySqlTransaction transaction = conn.BeginTransaction())

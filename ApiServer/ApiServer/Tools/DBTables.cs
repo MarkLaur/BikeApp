@@ -29,6 +29,8 @@ namespace ApiServer.Tools
 
             public const string TableName = "biketrips";
 
+            public const string RowCountQuery = $"SELECT COUNT(*) rows FROM {TableName};";
+
             /// <summary>
             /// Parametrized query that gets bike trips with joined station data. Contained parameters: @startIndex, @limit
             /// </summary>
@@ -94,6 +96,8 @@ namespace ApiServer.Tools
             }
 
             public const string TableName = "bikestations";
+
+            public const string RowCountQuery = $"SELECT COUNT(*) rows FROM {TableName};";
 
             /// <summary>
             /// Parametrized query that gets all bike stations. Contained parameters: @startIndex, @limit

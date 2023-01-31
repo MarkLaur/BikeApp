@@ -1,6 +1,8 @@
 using ApiServer.Models;
 using ApiServer.Tools;
 using Microsoft.AspNetCore.Mvc;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Net;
 
 namespace ApiServer.Controllers
@@ -9,6 +11,18 @@ namespace ApiServer.Controllers
     [Route("[controller]")]
     public class BikeStationsController : ControllerBase
     {
+        public class BikeStationsResponse
+        {
+            public int TotalStations { get; private set; }
+            public IEnumerable<Station> Stations { get; private set; }
+
+            public BikeStationsResponse(int totalStations, IEnumerable<Station> stations)
+            {
+                TotalStations = totalStations;
+                Stations = stations;
+            }
+        }
+
         private readonly ILogger<BikeTripsController> _logger;
 
         public BikeStationsController(ILogger<BikeTripsController> logger)
@@ -17,12 +31,23 @@ namespace ApiServer.Controllers
         }
 
         [HttpGet] //Using the HttpGet(name) override makes swagger die as it can't tell the difference between gets and puts
-        public ActionResult<IEnumerable<Station>> Get()
+        public ActionResult<BikeStationsResponse> Get([FromQuery, Range(1, int.MaxValue)] int page = 1)
         {
             try
             {
-                IEnumerable<Station> stations = DatabaseHandler.GetStations(0, 100);
-                return new ActionResult<IEnumerable<Station>>(stations);
+                //Run database requests in parallel
+                Task<(bool, int)> countTask = DatabaseHandler.TryGetStationCount();
+                Task<IEnumerable<Station>> stationsTask = DatabaseHandler.GetStations(page - 1, 100);
+
+                int rowCount = countTask.Result.Item2;
+
+                if (!countTask.Result.Item1)
+                {
+                    //TODO: return an error message
+                    rowCount = -1;
+                }
+
+                return new ActionResult<BikeStationsResponse>(new BikeStationsResponse(rowCount, stationsTask.Result));
             }
             catch (Exception ex)
             {

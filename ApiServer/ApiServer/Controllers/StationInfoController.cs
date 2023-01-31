@@ -21,8 +21,7 @@ namespace ApiServer.Controllers
         {
             try
             {
-                BikeTripsWithStations trips = DatabaseHandler.GetTrips(stationID, 0, 100);
-                return new ActionResult<BikeTripsWithStations>(trips);
+                return new ActionResult<BikeTripsWithStations>(DatabaseHandler.GetTrips(stationID, 0, 100).Result);
             }
             catch (Exception ex)
             {

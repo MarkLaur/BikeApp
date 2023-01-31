@@ -1,6 +1,7 @@
 using ApiServer.Models;
 using ApiServer.Tools;
 using Microsoft.AspNetCore.Mvc;
+using System.ComponentModel.DataAnnotations;
 using System.Net;
 
 namespace ApiServer.Controllers
@@ -9,6 +10,18 @@ namespace ApiServer.Controllers
     [Route("[controller]")]
     public class BikeTripsController : ControllerBase
     {
+        public class BikeTripsResponse
+        {
+            public int TotalBikeTrips { get; private set; }
+            public BikeTripsWithStations Trips { get; private set; }
+
+            public BikeTripsResponse(int totalBikeTrips, BikeTripsWithStations trips)
+            {
+                TotalBikeTrips = totalBikeTrips;
+                Trips = trips;
+            }
+        }
+
         private readonly ILogger<BikeTripsController> _logger;
 
         public BikeTripsController(ILogger<BikeTripsController> logger)
@@ -17,12 +30,23 @@ namespace ApiServer.Controllers
         }
 
         [HttpGet] //Using the HttpGet(name) override makes swagger die as it can't tell the difference between gets and puts
-        public ActionResult<BikeTripsWithStations> Get()
+        public ActionResult<BikeTripsResponse> Get([FromQuery, Range(1, int.MaxValue)] int page = 1)
         {
             try
             {
-                BikeTripsWithStations trips = DatabaseHandler.GetTrips(0, 100);
-                return new ActionResult<BikeTripsWithStations>(trips);
+                //Run database requests in parallel
+                Task<(bool, int)> countTask = DatabaseHandler.TryGetTripCount();
+                Task<BikeTripsWithStations> tripsTask = DatabaseHandler.GetTrips(page - 1, 100);
+
+                int rowCount = countTask.Result.Item2;
+
+                if(!countTask.Result.Item1)
+                {
+                    //TODO: return an error message
+                    rowCount = -1;
+                }
+
+                return new ActionResult<BikeTripsResponse>(new BikeTripsResponse(rowCount, tripsTask.Result));
             }
             catch (Exception ex)
             {
