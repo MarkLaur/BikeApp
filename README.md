@@ -35,18 +35,28 @@ This was made as a pre-assignment for Solita Dev Academy.
 - Tests
 - DB user with limited permissions
 
+# Installation instructions
+1. Download the latest build from the releases page and extract the .zip
+2. Download UsbWebServer and extract the .zip. This project was tested with v8.6
+4. Launch UsbWebServer and leave the window open.
+5. Run DBInitializer.bat
+	- A console window will open. if it says "Database initialized" then all is well. You can close this window.
+6. Run ApiServer.bat
+	- A console window will open. Leave it open. The console window should tell you that database connection is good. If it says anything else then something is broken in UsbWebServer.
+7. Rum WebApp.bat
+	- A console window will open. Leave it open.
+8. Open a browser and go to http://localhost:5000
+	- Chrome and edge have been tested to work.
+9. You should now see my beautiful app
+10. Navigate to the "Import data" page
+11. Import a stations csv file
+12. Import a trips csv file
+	- This might take a few minutes. See the console windows for status updates.
+	- You cannot import trips before stations as trips with unknown stations are not allowed.
+13. The app should now be fully set up and functional.
+
 # Build instructions
 1. Make sure that the 'Produce single file' and 'Trim unused code' settings are turned off. They break the MySQL library.
-
-# Installation instructions
-1. Download this github repository
-2. Download usbwebserver
-3. Install visual studio and whatever packages ASP.NET requires. (.exe files will be available later)
-4. Launch usbwebserver, add a 'bikeapp' database, and add tables in 'bikestations.sql' and 'biketrips.sql' files to it. (There will be a tool to automate this later)
-5. Open the ApiServer project and click the button with the green arrow that says 'https' to run the project.
-6. A console window and a browser window will open, leave them open. The console window should say "Database connection good.". If it says "Database couldn't be reached. Make sure it is online." then something is broken in usbwebserver.
-7. Open the WebApp project and click the button with the green arrow that says 'https' to run the project.
-8. A browser window with the bike app site on it will automatically open.
 
 # FAQ
 1. Why is the api server separate from the web app server?
