@@ -1,6 +1,3 @@
-# Work-in-progress
-This is still incomplete and filled with garbage code so try to focus on the good bits (if there are any).
-
 # BikeApp
 Welcome to my bikeapp project. This is my first ASP.NET Core project so I'm probably not doing everything sensibly.
 
