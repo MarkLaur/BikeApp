@@ -25,9 +25,11 @@ This was made as a pre-assignment for Solita Dev Academy.
 	- Manual data entry form not yet implemented
 	
 # TODO
-- Figure out how to send page to client early without data and do api requests late.
+- Do api requests on the front end to make the site more responsive
 - Fix bike stations page layout
-- Add pagination to station search page
+- Pagination on the station search page
+- Station name search on the station search page
+- Column sorting
 - Station and trip entry form
 - Tests
 - DB user with limited permissions
