@@ -11,7 +11,7 @@ namespace WebApp.Services
         public readonly static string ApiKeyHeaderName = "apiKey";
         public readonly static string ApiKey = "1111";
 
-        private readonly static string ApiServerIP = "https://localhost";
+        private readonly static string ApiServerIP = "http://localhost";
         private readonly static int ApiServerPort = 7170;
 
         private readonly static string StationInfoRoute = "StationInfo";

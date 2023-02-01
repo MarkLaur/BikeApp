@@ -19,13 +19,16 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-app.UseHttpsRedirection();
+//To enable https uncomment this and the thing in appsettings.json
+//app.UseHttpsRedirection();
 
 app.UseMiddleware<ApiKeyCheck>();
 
 app.UseAuthorization();
 
 app.MapControllers();
+
+app.Logger.LogInformation($"Testing database connection...");
 
 DBConnectionTestResult connResult = DatabaseHandler.TestConnection();
 if (connResult == DBConnectionTestResult.Success)

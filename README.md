@@ -35,6 +35,9 @@ This was made as a pre-assignment for Solita Dev Academy.
 - Tests
 - DB user with limited permissions
 
+# Build instructions
+1. Make sure that the 'Produce single file' and 'Trim unused code' settings are turned off. They break the MySQL library.
+
 # Installation instructions
 1. Download this github repository
 2. Download usbwebserver
