@@ -7,18 +7,16 @@ This was made as a pre-assignment for Solita Dev Academy.
 
 # Features
 - Separate web app, API server and MySQL server
-- Bike trip list view
+- Bike trip list page
 	- Lists all bike trips and shows their data
-- Station list view
+- Station list page
 	- Lists all stations and shows their data
-- Station search
+- Station search page
 	- Searchable by ID or name
-	- Pagination not yet implemented
-- Station Info
+- Station Info page
 	- Shows station info
-	- Shows trips starting or ending at the station
-	- Pagination not yet implemented
-- Data uploader
+	- Shows trips starting from or ending at the station
+- Data upload page
 	- Supports csv input
 	- 100MB bike trip file takes about 2 minutes to upload on my system.
 		- After clicking the button the site appears frozen, but it's working. You just have to wait. See the console windows for status updates.
@@ -28,13 +26,13 @@ This was made as a pre-assignment for Solita Dev Academy.
 # TODO
 - Do api requests on the front end to make the site more responsive
 - Fix bike stations page layout
-- Pagination on the station search and station info pages
 - Make station search form more user friendly
 	- The page can only search by name OR id, yet the form allows both to be entered.
 - Column sorting
 - Station and trip entry form
 - Tests
 - DB user with limited permissions
+- Improve bike trips database query performance
 
 # Installation instructions
 1. Download the latest build from the releases page and extract the .zip
