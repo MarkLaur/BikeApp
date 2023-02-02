@@ -97,8 +97,7 @@ namespace ApiServer.Tools
                         reader.GetDateTime(DBTables.BikeTrips.Columns.Return),
                         reader.GetInt32(DBTables.BikeTrips.Columns.DepartureStationID),
                         reader.GetInt32(DBTables.BikeTrips.Columns.ReturnStationID),
-                        reader.GetInt32(DBTables.BikeTrips.Columns.Distance),
-                        reader.GetInt32(DBTables.BikeTrips.Columns.Duration)
+                        reader.GetInt32(DBTables.BikeTrips.Columns.Distance)
                         );
 
                     //Check if departure station exists
@@ -436,7 +435,6 @@ namespace ApiServer.Tools
                             cmd.Parameters.AddWithValue("@departurestationid", trip.DepartureStationID);
                             cmd.Parameters.AddWithValue("@returnstationid", trip.ReturnStationID);
                             cmd.Parameters.AddWithValue("@distance", trip.Distance);
-                            cmd.Parameters.AddWithValue("@duration", (int)trip.Duration.TotalSeconds);
 
                             cmd.ExecuteNonQuery();
                         }

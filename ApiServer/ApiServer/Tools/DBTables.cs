@@ -22,7 +22,6 @@ namespace ApiServer.Tools
                 public const string DepartureStationID = "DepartureStationID";
                 public const string ReturnStationID = "ReturnStationID";
                 public const string Distance = "Distance";
-                public const string Duration = "Duration";
                 public const string DepartureStationName = "DepartureStationName";
                 public const string ReturnStationName = "ReturnStationName";
             }
@@ -53,12 +52,12 @@ namespace ApiServer.Tools
 
             /// <summary>
             /// Parametrized query that inserts a bike trip without an id field (no overwrite).
-            /// Contained parameters: @departuretime, @returntime, @departurestationid, @returnstationid, @distance, @duration
+            /// Contained parameters: @departuretime, @returntime, @departurestationid, @returnstationid, @distance
             /// </summary>
             public const string InsertBikeTripsWithoutIDQuery =
                 $"INSERT INTO biketrips ({Columns.Departure}, {Columns.Return}, {Columns.DepartureStationID}, " +
-                $"{Columns.ReturnStationID}, {Columns.Distance}, {Columns.Duration})\r\n" +
-                "VALUES (@departuretime, @returntime, @departurestationid, @returnstationid, @distance, @duration)";
+                $"{Columns.ReturnStationID}, {Columns.Distance})\r\n" +
+                "VALUES (@departuretime, @returntime, @departurestationid, @returnstationid, @distance)";
 
             /// <summary>
             /// Parametrized that inserts or replaces the element in DB.

@@ -24,7 +24,7 @@ else
         @foreach (Models.BikeTrip trip in Dataset.BikeTrips)
         {
             //Distance and duration need some custom formatting
-            string durationMessage = $"{trip.Duration.Minutes}m {trip.Duration.Seconds}s";
+            string durationMessage = $"{MathF.Floor((float)trip.Duration.TotalMinutes)}m {trip.Duration.Seconds}s";
             string distanceMessage = $"{(trip.Distance / 1000f).ToString("0.00")} km";
 
             string departureStationName = trip.DepartureStation != null ? trip.DepartureStation.NameFin : $"Missing station {trip.DepartureStationID}";

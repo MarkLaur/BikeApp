@@ -16,12 +16,16 @@ namespace WebApp.Models
 
         public int ID { get; private set; }
 
+        //TODO: add validation that checks if departure time is before return time
         [Required, Range(typeof(DateTime), "1/1/0002", "1/1/2200")]
         public DateTime DepartureTime { get; private set; }
+
         [Required, Range(typeof(DateTime), "1/1/0002", "1/1/2200")]
         public DateTime ReturnTime { get; private set; }
+
         [Required, Range(1, int.MaxValue)]
         public int DepartureStationID { get; private set; }
+
         [Required, Range(1, int.MaxValue)]
         public int ReturnStationID { get; private set; }
         /// <summary>
@@ -30,15 +34,16 @@ namespace WebApp.Models
         [Required, Range(10, int.MaxValue)]
         public int Distance { get; private set; }
 
-        [Required, Range(10, int.MaxValue)]
-        public int DurationSeconds { get; private set; }
-
         //These are built from other data.
-        //Duration is stored as seconds integer in db, we convert it to timespan for easier use.
-        [JsonIgnore]
+
+        //Duration is calculated from return and departure time.
+        //Trip length minimum is 10 seconds and maximum is 1 year.
+        [JsonIgnore, Range(typeof(TimeSpan), "00:00:10", "365.00:00:00", ErrorMessage = "Trips must be longer than 10 seconds and shorter than 1 year.")]
         public TimeSpan Duration { get; private set; }
+
         [JsonIgnore]
         public Station? DepartureStation { get; private set; } = null;
+
         [JsonIgnore]
         public Station? ReturnStation { get; private set; } = null;
 
@@ -50,16 +55,14 @@ namespace WebApp.Models
             DateTime returnTime,
             int departureStationID,
             int returnStationID,
-            int distance,
-            int durationSeconds)
+            int distance)
          //Call the other constructor and add set the id field.
          : this(
             departureTime,
             returnTime,
             departureStationID,
             returnStationID,
-            distance,
-            durationSeconds)
+            distance)
         {
             ID = id;
         }
@@ -69,17 +72,15 @@ namespace WebApp.Models
             DateTime returnTime,
             int departureStationID,
             int returnStationID,
-            int distance,
-            int durationSeconds)
+            int distance)
         {
             DepartureTime = departureTime;
             ReturnTime = returnTime;
             DepartureStationID = departureStationID;
             ReturnStationID = returnStationID;
             Distance = distance;
-            DurationSeconds = durationSeconds;
 
-            Duration = TimeSpan.FromSeconds(durationSeconds);
+            Duration = ReturnTime - DepartureTime;
         }
 
         /// <summary>
@@ -145,8 +146,7 @@ namespace WebApp.Models
                     returnTime,
                     departureStationID,
                     returnStationID,
-                    distance,
-                    duration
+                    distance
                     );
             }
             else
@@ -157,8 +157,7 @@ namespace WebApp.Models
                     returnTime,
                     departureStationID,
                     returnStationID,
-                    distance,
-                    duration
+                    distance
                     );
             }
 
