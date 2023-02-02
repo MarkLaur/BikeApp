@@ -56,7 +56,7 @@ else
 }
 
 @code {
-    [Parameter]
+    [Parameter, EditorRequired]
     public ICollection<Station> BikeStations { get; set; } = new Station[0];
     [Parameter]
     public bool EnableInfoButton { get; set; } = true;

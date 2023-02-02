@@ -45,7 +45,7 @@ else
 }
 
 @code {
-    [Parameter]
+    [Parameter, EditorRequired]
     public BikeTripsWithStations Dataset { get; set; } = new(new(), new());
 
     //TODO: Get culture from user's browzer
