@@ -5,6 +5,13 @@ Critique is welcome; I want to learn more.
 
 This was made as a pre-assignment for Solita Dev Academy.
 
+# Change notes since last build
+- Implemeted station name search
+- Added pagination to station search and station info pages
+- Implemented single station and trip data entry forms
+- Trip duration is now calculated from departure and return times
+- Fixed trip duration minute calculation
+
 # Features
 - Separate web app, API server and MySQL server
 - Bike trip list page
@@ -33,7 +40,8 @@ This was made as a pre-assignment for Solita Dev Academy.
 - Tests
 - DB user with limited permissions
 - Improve bike trips database query performance
-
+- Add an ignoreErrors bool header to BikeStations and BikeTrips PUT edpoints that allows data insertion to continue and a success to be returned even if data validation fails for some list elements. If it's false, then the request should return and error code on an error.
+	
 # Installation instructions
 1. Download the latest build from the releases page and extract the .zip
 2. Download UsbWebServer and extract the .zip. This project was tested with v8.6
