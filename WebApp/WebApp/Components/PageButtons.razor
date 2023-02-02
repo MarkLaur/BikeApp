@@ -9,22 +9,22 @@
     <div class="mb-2 page-div">
         @if (PreviousPage != null)
         {
-                <button class="btn btn-primary page-button" onclick="location.href='@PreviousPage'">Previous page</button>
+                <button class="btn btn-primary btn-sm page-button" onclick="location.href='@PreviousPage'">Previous page</button>
         }
         else
         {
-                <button class="btn btn-primary page-button" disabled>Previous page</button>
+                <button class="btn btn-primary btn-sm page-button" disabled>Previous page</button>
         }
 
         <h4>Page @CurrentPage / @LastPage</h4>
 
         @if (NextPage != null)
         {
-                <button class="btn btn-primary page-button" onclick="location.href='@NextPage'">Next page</button>
+                <button class="btn btn-primary btn-sm page-button" onclick="location.href='@NextPage'">Next page</button>
         }
         else
         {
-                <button class="btn btn-primary page-button" disabled>Next page</button>
+                <button class="btn btn-primary btn-sm page-button" disabled>Next page</button>
         }
     </div>
 }
