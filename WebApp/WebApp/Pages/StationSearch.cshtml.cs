@@ -60,7 +60,7 @@ namespace WebApp.Pages
             else
             {
                 StationIdQuery = null;
-                BikeStationsResponse response = await _apiService.GetBikeStations(1, stationName);
+                BikeStationsResponse response = await _apiService.GetBikeStations(page, stationName);
                 FoundStations = response.Stations;
 
                 LastPage = response.LastPage;
