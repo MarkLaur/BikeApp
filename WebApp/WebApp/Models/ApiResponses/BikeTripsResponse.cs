@@ -8,6 +8,9 @@ namespace WebApp.Models.ApiResponses
         //TODO: Make elements per page configurable.
         private const int perPage = 100;
 
+        /// <summary>
+        /// The total amount of bike trips in database that matched the query.
+        /// </summary>
         public int TotalBikeTrips { get; private set; }
         public BikeTripsWithStations Trips { get; private set; }
 

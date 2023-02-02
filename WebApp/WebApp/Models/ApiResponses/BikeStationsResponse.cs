@@ -8,6 +8,9 @@ namespace WebApp.Models.ApiResponses
         //TODO: Make elements per page configurable.
         private const int perPage = 100;
 
+        /// <summary>
+        /// The total amount of stations in database that matched the query.
+        /// </summary>
         public int TotalStations { get; private set; }
         public ICollection<Station> Stations { get; private set; }
 

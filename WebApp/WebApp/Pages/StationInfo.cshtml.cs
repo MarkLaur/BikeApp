@@ -64,7 +64,7 @@ namespace WebApp.Pages
 
             StationTrips = result2.Trips;
 
-            LastPage = result2.TotalBikeTrips;
+            LastPage = result2.LastPage;
             CurrentPage = page;
         }
     }
