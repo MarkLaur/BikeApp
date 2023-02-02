@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using System.ComponentModel.DataAnnotations;
 using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
 using System.Text.Json;
@@ -25,6 +26,9 @@ namespace WebApp.Pages
 
         public ICollection<Station> FoundStations { get; private set; } = new List<Station>();
 
+        public int CurrentPage { get; private set; }
+        public int LastPage { get; private set; }
+
         public StationSearchModel(ILogger<IndexModel> logger, ApiService apiService)
         {
             _logger = logger;
@@ -32,7 +36,7 @@ namespace WebApp.Pages
             _apiService = apiService;
         }
 
-        public async Task OnGetAsync([FromQuery] int? stationID, [FromQuery] string? stationName)
+        public async Task OnGetAsync([FromQuery] int? stationID, [FromQuery] string? stationName, [FromQuery, Range(1, int.MaxValue)] int page = 1)
         {
             //TODO: Do queries on client side using AJAX
             StationIdQuery = stationID;
@@ -59,7 +63,8 @@ namespace WebApp.Pages
                 BikeStationsResponse response = await _apiService.GetBikeStations(1, stationName);
                 FoundStations = response.Stations;
 
-                //TODO: add page handling
+                LastPage = response.LastPage;
+                CurrentPage = page;
             }
         }
     }

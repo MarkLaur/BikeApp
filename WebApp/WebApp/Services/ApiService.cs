@@ -78,6 +78,8 @@ namespace WebApp.Services
             return await response.Content.ReadAsStreamAsync();
         }
 
+        #region Station Tasks
+
         /// <summary>
         /// Tries to find station with given id from api. Returns null if station cannot be found.
         /// Returns a (success, jsonStream) tuple. JsonStream is not null when success is true.
@@ -117,57 +119,16 @@ namespace WebApp.Services
             return response;
         }
 
-        public async Task<(HttpResponseMessage, TripInsertResult?)> UploadTrips(ICollection<BikeTrip> trips)
-        {
-            HttpResponseMessage response = await client.PutAsJsonAsync(ApiDefinitions.BikeTripsUri, trips);
-            Stream responseContent = await response.Content.ReadAsStreamAsync();
-
-            //Attempt to deserialize
-            TripInsertResult? result = await JsonSerializer.DeserializeAsync<TripInsertResult>(responseContent,
-            new JsonSerializerOptions
-            {
-                PropertyNameCaseInsensitive = true
-            });
-
-            return (response, result);
-        }
-
-        public async Task<BikeTripsResponse> GetBikeTrips(int page)
-        {
-            UriBuilder ub = new UriBuilder(ApiDefinitions.BikeTripsUri);
-            ub.Query = $"?page={page}";
-
-            Stream json = await GetJson(ub.Uri);
-
-            //Try to deserialize trips
-            BikeTripsResponse? response = await JsonSerializer.DeserializeAsync<BikeTripsResponse>(json,
-            new JsonSerializerOptions
-            {
-                PropertyNameCaseInsensitive = true
-            });
-
-            //Trips will be null if deserialization failed
-            if (response == null)
-            {
-                throw new InvalidDataException("Couldn't deserialize api data.");
-            }
-
-            //TODO: figure out how to make this happen automatically
-            response.Trips.OnDeserialized();
-
-            return response;
-        }
-
         public async Task<BikeStationsResponse> GetBikeStations(int page, string? stationName = null)
         {
-            if(page <= 0)
+            if (page <= 0)
             {
                 throw new ArgumentOutOfRangeException("Page must be between 1 and int.MaxValue");
             }
 
             UriBuilder ub = new UriBuilder(ApiDefinitions.BikeStationsUri);
             ub.Query = $"?page={page}";
-            if(!string.IsNullOrWhiteSpace(stationName)) ub.Query += $"&stationName={stationName}";
+            if (!string.IsNullOrWhiteSpace(stationName)) ub.Query += $"&stationName={stationName}";
 
             Stream json = await GetJson(ub.Uri);
 
@@ -188,7 +149,7 @@ namespace WebApp.Services
         }
 
         /// <summary>
-        /// Returns a (station, userErrorMessage) tuple. Station is null when success is false.
+        /// Returns a (station, userErrorMessage) tuple. Station is null when request fails.
         /// </summary>
         /// <param name="stationID"></param>
         /// <param name="station"></param>
@@ -233,6 +194,55 @@ namespace WebApp.Services
                 return (null, "Station deserialization failed");
             }
         }
+
+        #endregion Station Tasks
+
+        #region Trip Tasks
+
+        public async Task<BikeTripsResponse> GetBikeTrips(int page, int? stationID = null)
+        {
+            UriBuilder ub = new UriBuilder(ApiDefinitions.BikeTripsUri);
+            ub.Query = $"?page={page}";
+            if (stationID.HasValue) ub.Query += $"&stationID={stationID}";
+
+            Stream json = await GetJson(ub.Uri);
+
+            //Try to deserialize trips
+            BikeTripsResponse? response = await JsonSerializer.DeserializeAsync<BikeTripsResponse>(json,
+            new JsonSerializerOptions
+            {
+                PropertyNameCaseInsensitive = true
+            });
+
+            //Trips will be null if deserialization failed
+            if (response == null)
+            {
+                throw new InvalidDataException("Couldn't deserialize api data.");
+            }
+
+            //TODO: figure out how to make this happen automatically
+            response.Trips.OnDeserialized();
+
+            return response;
+        }
+
+        public async Task<(HttpResponseMessage, TripInsertResult?)> UploadTrips(ICollection<BikeTrip> trips)
+        {
+            HttpResponseMessage response = await client.PutAsJsonAsync(ApiDefinitions.BikeTripsUri, trips);
+            Stream responseContent = await response.Content.ReadAsStreamAsync();
+
+            //Attempt to deserialize
+            TripInsertResult? result = await JsonSerializer.DeserializeAsync<TripInsertResult>(responseContent,
+            new JsonSerializerOptions
+            {
+                PropertyNameCaseInsensitive = true
+            });
+
+            return (response, result);
+        }
+
+        #endregion Trip Tasks
+
         #endregion
     }
 }

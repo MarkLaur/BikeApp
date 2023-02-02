@@ -26,16 +26,6 @@ namespace WebApp.Pages
         public int CurrentPage { get; private set; }
         public int LastPage { get; private set; }
 
-        /// <summary>
-        /// Will be null if there is no next page
-        /// </summary>
-        public string? NextPage { get; private set; } = null;
-
-        /// <summary>
-        /// Will be null if there is no previous page
-        /// </summary>
-        public string? PreviousPage { get; private set; } = null;
-
         public BikeStationsModel(ILogger<IndexModel> logger, ApiService apiService)
         {
             _logger = logger;
@@ -63,15 +53,8 @@ namespace WebApp.Pages
                 return;
             }
 
-            //Elements per page is hardcoded in api.
-            //TODO: Make elements per page configurable.
-            int perPage = 100;
-            LastPage = (response.TotalStations - 1) / perPage + 1;
-
+            LastPage = response.LastPage;
             CurrentPage = page;
-            //Check if next and previous pages exist and add the query string
-            if (page > 1) PreviousPage = Request.Path + $"?page={page - 1}";
-            if (page < LastPage) NextPage = Request.Path + $"?page={page + 1}";
 
             BikeStations = response.Stations;
         }

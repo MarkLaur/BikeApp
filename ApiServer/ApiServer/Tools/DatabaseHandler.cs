@@ -131,7 +131,12 @@ namespace ApiServer.Tools
             return new BikeTripsWithStations(tripList, stations);
         }
 
-        public static async Task<(bool, int)> TryGetTripCount()
+        /// <summary>
+        /// Returns the amount of trips from given station. Returns the total amount of trips if station isn't specified.
+        /// </summary>
+        /// <param name="stationID"></param>
+        /// <returns></returns>
+        public static async Task<(bool, int)> TryGetTripCount(int? stationID = null)
         {
             using (MySqlConnection conn = new MySqlConnection(connectionString))
             {
@@ -140,6 +145,13 @@ namespace ApiServer.Tools
                 using (MySqlCommand cmd = conn.CreateCommand())
                 {
                     cmd.CommandText = DBTables.BikeTrips.RowCountQuery;
+
+                    if (stationID.HasValue)
+                    {
+                        cmd.CommandText += DBTables.BikeTrips.WhereStationIdClause;
+                        cmd.Parameters.AddWithValue("@stationID", stationID);
+                    }
+
                     using (DbDataReader reader = await cmd.ExecuteReaderAsync())
                     {
                         if (reader.Read())

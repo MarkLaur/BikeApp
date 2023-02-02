@@ -28,6 +28,8 @@
         {
             <div class="mb-3">
                 <h3 class="mb-3">Found station</h3>
+                <component type="typeof(Components.PageButtons)" render-mode="Static" param-CurrentPage="@Model.CurrentPage" param-LastPage="@Model.LastPage" />
+
                 <component type="typeof(Components.BikeStationsTable)" render-mode="Static" param-BikeStations="@Model.FoundStations"/>
             </div>
         }

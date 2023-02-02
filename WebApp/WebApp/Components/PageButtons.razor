@@ -1,0 +1,55 @@
+﻿<!-- 
+    This component contains page buttons that add a page parameter to the url when clicked.
+    The component contains CurrentPage and LastPage parameters that must be set.
+-->
+@inject NavigationManager navMan
+
+@if(LastPage > 1)
+{
+    <div class="mb-2 page-div">
+        @if (PreviousPage != null)
+        {
+                <button class="btn btn-primary page-button" onclick="location.href='@PreviousPage'">Previous page</button>
+        }
+        else
+        {
+                <button class="btn btn-primary page-button" disabled>Previous page</button>
+        }
+
+        <h4>Page @CurrentPage / @LastPage</h4>
+
+        @if (NextPage != null)
+        {
+                <button class="btn btn-primary page-button" onclick="location.href='@NextPage'">Next page</button>
+        }
+        else
+        {
+                <button class="btn btn-primary page-button" disabled>Next page</button>
+        }
+    </div>
+}
+
+@code {
+    [Parameter, EditorRequired]
+    public int CurrentPage { get; set; } = 1;
+    [Parameter, EditorRequired]
+    public int LastPage { get; set; }
+
+    public string? NextPage
+    {
+        get
+        {
+            if (CurrentPage >= LastPage) return null;
+            else return navMan.GetUriWithQueryParameter("page", CurrentPage + 1);
+        }
+    }
+
+    public string? PreviousPage
+    {
+        get
+        {
+            if (CurrentPage <= 1) return null;
+            else return navMan.GetUriWithQueryParameter("page", CurrentPage - 1);
+        }
+    }
+}

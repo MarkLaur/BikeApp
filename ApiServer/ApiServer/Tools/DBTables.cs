@@ -29,7 +29,15 @@ namespace ApiServer.Tools
 
             public const string TableName = "biketrips";
 
-            public const string RowCountQuery = $"SELECT COUNT(*) rows FROM {TableName};";
+            public const string RowCountQuery = $"SELECT COUNT(*) rows FROM {TableName}\n";
+
+            /// <summary>
+            /// Parametrized partial query that adds a where clause that limits result to ones where station id matches.
+            /// Contained parameters: @stationID
+            /// </summary>
+            public const string WhereStationIdClause =
+                $"WHERE {Columns.DepartureStationID} = @stationID\n" +
+                $"OR {Columns.ReturnStationID} = @stationID\n";
 
             /// <summary>
             /// Parametrized query that gets bike trips with joined station data. Contained parameters: @startIndex, @limit
