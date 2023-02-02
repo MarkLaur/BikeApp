@@ -13,7 +13,10 @@ namespace WebApp.Pages
         private readonly ILogger<IndexModel> _logger;
         private ApiService _apiService;
 
-        public string Message { get; private set; } = string.Empty;
+        public string StationsMessage { get; private set; } = string.Empty;
+        public string TripsMessage { get; private set; } = string.Empty;
+        public string StationMessage { get; private set; } = string.Empty;
+        public string TripMessage { get; private set; } = string.Empty;
 
         public ImportDataModel(ILogger<IndexModel> logger, ApiService apiService)
         {
@@ -25,7 +28,7 @@ namespace WebApp.Pages
         {
             if (file == null)
             {
-                Message = "Select a file";
+                StationsMessage = "Select a file";
                 return;
             }
 
@@ -33,17 +36,17 @@ namespace WebApp.Pages
 
             if (!CsvParser.TryParseCSV(file.OpenReadStream(), out List<Station> stations, out int invalidLines, ","))
             {
-                Message = $"Invalid CSV format.";
+                StationsMessage = $"Invalid CSV format.";
                 return;
             }
 
-            Message = $"Uploading stations: {stations.Count}. Invalid lines: {invalidLines}.";
+            StationsMessage = $"Uploading stations: {stations.Count}. Invalid lines: {invalidLines}.";
 
             HttpResponseMessage response = await _apiService.UploadStations(stations);
 
             if (response.IsSuccessStatusCode)
             {
-                Message += $" Upload succesful.";
+                StationsMessage += $" Upload succesful.";
             }
             else if (response.StatusCode == HttpStatusCode.BadRequest) //Api returns 400 if model validation fails
             {
@@ -51,11 +54,11 @@ namespace WebApp.Pages
 
                 //TODO: Get broken fields from response and show them to user in a nice form to user
 
-                Message += $" Upload failed. api response: {response.StatusCode}.\n\nFull response:\n\n{text}";
+                StationsMessage += $" Upload failed. api response: {response.StatusCode}.\n\nFull response:\n\n{text}";
             }
             else
             {
-                Message += $" Upload failed. api response: {response.StatusCode}";
+                StationsMessage += $" Upload failed. api response: {response.StatusCode}";
             }
         }
 
@@ -79,13 +82,13 @@ namespace WebApp.Pages
 
             //TODO: validate csv and upload data on client side. Also, give the user info about progress.
 
-            Message = $"Uploading station.";
+            StationMessage = $"Uploading station.";
 
             HttpResponseMessage response = await _apiService.UploadStations(station);
 
             if (response.IsSuccessStatusCode)
             {
-                Message += $" Station added to db.";
+                StationMessage += $" Station added to db.";
             }
             else if (response.StatusCode == HttpStatusCode.BadRequest) //Api returns 400 if model validation fails
             {
@@ -93,11 +96,11 @@ namespace WebApp.Pages
 
                 //TODO: Get broken fields from response and show them to user in a nice form to user
 
-                Message += $" Upload failed. api response: {response.StatusCode}.\n\nFull response:\n\n{text}";
+                StationMessage += $" Upload failed. api response: {response.StatusCode}.\n\nFull response:\n\n{text}";
             }
             else
             {
-                Message += $" Upload failed. api response: {response.StatusCode}";
+                StationMessage += $" Upload failed. api response: {response.StatusCode}";
             }
         }
 
@@ -105,7 +108,7 @@ namespace WebApp.Pages
         {
             if (file == null)
             {
-                Message = "Select a file";
+                TripsMessage = "Select a file";
                 return;
             }
 
@@ -115,23 +118,23 @@ namespace WebApp.Pages
 
             if (!CsvParser.TryParseCSV(file.OpenReadStream(), out List<BikeTrip> trips, out int invalidLines, ","))
             {
-                Message = $"Invalid CSV format.";
+                TripsMessage = $"Invalid CSV format.";
                 return;
             }
 
             _logger.LogInformation("CSV parsed. Starting upload.");
 
-            Message = $"Uploading bike trips: {trips.Count}. Invalid lines: {invalidLines}.";
+            TripsMessage = $"Uploading bike trips: {trips.Count}. Invalid lines: {invalidLines}.";
 
             (HttpResponseMessage, TripInsertResult?) response = await _apiService.UploadTrips(trips);
 
             if (response.Item1.IsSuccessStatusCode)
             {
-                Message += $" Upload succesful.";
+                TripsMessage += $" Upload succesful.";
 
-                if (response.Item2 == null) Message += $" Reponse data block is null.";
-                else if (response.Item2.AnyBadData) Message += $" {response.Item2}";
-                else Message += $" {response.Item2}";
+                if (response.Item2 == null) TripsMessage += $" Reponse data block is null.";
+                else if (response.Item2.AnyBadData) TripsMessage += $" {response.Item2}";
+                else TripsMessage += $" {response.Item2}";
             }
             else if (response.Item1.StatusCode == HttpStatusCode.BadRequest) //Api returns 400 if model validation fails
             {
@@ -139,11 +142,11 @@ namespace WebApp.Pages
 
                 //TODO: Get broken fields from response and show them to user in a nice form to user
 
-                Message += $" Upload failed. api response: {response.Item1.StatusCode}.\n\nFull response:\n\n{text}";
+                TripsMessage += $" Upload failed. api response: {response.Item1.StatusCode}.\n\nFull response:\n\n{text}";
             }
             else
             {
-                Message += $" Upload failed. api response: {response.Item1.StatusCode}";
+                TripsMessage += $" Upload failed. api response: {response.Item1.StatusCode}";
             }
         }
 
@@ -159,20 +162,20 @@ namespace WebApp.Pages
 
             //TODO: validate trip and upload data on client side. Also, give the user info about progress.
 
-            Message = $"Uploading bike trip.";
+            TripMessage = $"Uploading bike trip.";
 
             (HttpResponseMessage, TripInsertResult?) response = await _apiService.UploadTrips(trip);
 
             if (response.Item1.IsSuccessStatusCode)
             {
-                if (response.Item2 == null) Message += $" Reponse data block is null.";
+                if (response.Item2 == null) TripMessage += $" Reponse data block is null.";
                 else if (response.Item2.AnyBadData)
                 {
-                    Message += $" Some trip data was invalid. {response.Item2}";
+                    TripMessage += $" Some trip data was invalid. {response.Item2}";
                 }
                 else
                 {
-                    Message += $" Trip added to db.";
+                    TripMessage += $" Trip added to db.";
                 }
             }
             else if (response.Item1.StatusCode == HttpStatusCode.BadRequest) //Api returns 400 if model validation fails
@@ -181,11 +184,11 @@ namespace WebApp.Pages
 
                 //TODO: Get broken fields from response and show them to user in a nice form to user
 
-                Message += $" Upload failed. api response: {response.Item1.StatusCode}.\n\nFull response:\n\n{text}";
+                TripMessage += $" Upload failed. api response: {response.Item1.StatusCode}.\n\nFull response:\n\n{text}";
             }
             else
             {
-                Message += $" Upload failed. api response: {response.Item1.StatusCode}";
+                TripMessage += $" Upload failed. api response: {response.Item1.StatusCode}";
             }
         }
     }

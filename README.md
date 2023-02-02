@@ -20,7 +20,7 @@ This was made as a pre-assignment for Solita Dev Academy.
 	- Station and trip entry forms
 	- Supports csv input
 		- 100MB bike trip file takes about 2 minutes to upload on my system.
-		- After clicking the button the site appears frozen, but it's working. You just have to wait. See the console windows for status updates. The text box at the bottom of the page updates when upload is complete.
+		- After clicking the button the site appears frozen, but it's working. You just have to wait. See the console windows for status updates. The text below the button updates when upload is complete.
 			- This will be fixed when I make the pages load stuff on the client side.
 	
 # TODO

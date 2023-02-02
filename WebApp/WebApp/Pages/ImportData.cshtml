@@ -9,16 +9,20 @@
     <h2 class="mb-4">Import stations</h2>
     <form enctype="multipart/form-data" asp-page-handler="stations" method="post">
         <input type="file" name="file" class="form-control mb-3">
-        <button type="submit" class="btn btn-primary">Upload</button>
+        <button type="submit" class="btn btn-primary">Upload Stations</button>
     </form>
+
+    <p class="m-4">@Model.StationsMessage</p>
 </div>
 
 <div class="m-4">
     <h2 class="mb-3">Import trips</h2>
     <form enctype="multipart/form-data" asp-page-handler="trips" method="post">
         <input type="file" name="file" class="form-control mb-3">
-        <button type="submit" class="btn btn-primary">Upload</button>
+        <button type="submit" class="btn btn-primary">Upload Trips</button>
     </form>
+
+    <p class="m-4">@Model.TripsMessage</p>
 </div>
 
 <div class="m-4">
@@ -39,18 +43,20 @@
         <input class="form-control mb-3" type="number" name="posY" placeholder="posY">
         <button class="btn btn-primary" type="submit">Add Station</button>
     </form>
+
+    <p class="m-4">@Model.StationMessage</p>
 </div>
 
 <div class="m-4">
     <h2 class="mb-3">Enter trip</h2>
     <form enctype="multipart/form-data" asp-page-handler="trip" method="post">
-        <input class="form-control mb-3" type="datetime-local" name="departureTime">
-        <input class="form-control mb-3" type="datetime-local" name="returnTime">
+        <input class="form-control mb-3" type="datetime-local" name="departureTime" placeholder="Departure time">
+        <input class="form-control mb-3" type="datetime-local" name="returnTime" placeholder="Return time">
         <input class="form-control mb-3" type="number" min="0" step="1" name="departureStation" placeholder="Departure station ID">
         <input class="form-control mb-3" type="number" min="0" step="1" name="returnStation" placeholder="Return station ID">
         <input class="form-control mb-3" type="number" min="0" step="1" name="distance" placeholder="Distance">
         <button class="btn btn-primary" type="submit">Add Trip</button>
     </form>
-</div>
 
-<p class="m-4">@Model.Message</p>
+    <p class="m-4">@Model.TripMessage</p>
+</div>
