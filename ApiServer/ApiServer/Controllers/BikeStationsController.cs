@@ -31,13 +31,13 @@ namespace ApiServer.Controllers
         }
 
         [HttpGet] //Using the HttpGet(name) override makes swagger die as it can't tell the difference between gets and puts
-        public ActionResult<BikeStationsResponse> Get([FromQuery, Range(1, int.MaxValue)] int page = 1)
+        public ActionResult<BikeStationsResponse> Get([FromQuery, Range(1, int.MaxValue)] int page = 1, [FromQuery, StringLength(100)] string stationName = "")
         {
             try
             {
                 //Run database requests in parallel
-                Task<(bool, int)> countTask = DatabaseHandler.TryGetStationCount();
-                Task<ICollection<Station>> stationsTask = DatabaseHandler.GetStations(page - 1, 100);
+                Task<(bool, int)> countTask = DatabaseHandler.TryGetStationCount(stationName);
+                Task<ICollection<Station>> stationsTask = DatabaseHandler.GetStations(stationName, page - 1, 100);
 
                 int rowCount = countTask.Result.Item2;
 

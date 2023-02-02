@@ -97,14 +97,24 @@ namespace ApiServer.Tools
 
             public const string TableName = "bikestations";
 
-            public const string RowCountQuery = $"SELECT COUNT(*) rows FROM {TableName};";
+            /// <summary>
+            /// Query that gets the amount of rows that match the data.
+            /// </summary>
+            public const string RowCountQuery = $"SELECT COUNT(*) rows FROM {TableName}\n";
 
             /// <summary>
-            /// Parametrized query that gets all bike stations. Contained parameters: @startIndex, @limit
+            /// Query that gets all bike stations. Doesn't contain a limit clause!
             /// </summary>
-            public const string GetBikeStationsQuery =
-                $"SELECT * FROM `{TableName}`\r\n" +
-                "LIMIT @startIndex , @limit";
+            public const string SelectAllQuery = $"SELECT * FROM `{TableName}`\n";
+
+            /// <summary>
+            /// Parametrized partial query that adds a where clause that limits result to ones where station name matches.
+            /// Contained parameters: @stationName
+            /// </summary>
+            public const string WhereNameClause =
+                $"WHERE {Columns.NameFin} LIKE @stationName\n" +
+                $"OR {Columns.NameSwe} LIKE @stationName\n" +
+                $"OR {Columns.Name} LIKE @stationName\n";
 
             /// <summary>
             /// A parametized SQL query that inserts a station into bikestations table. Updates existing key on duplicate key.
@@ -125,5 +135,11 @@ namespace ApiServer.Tools
                     $"WHERE {Columns.ID} = @id\r\n" +
                     "LIMIT 1";
         }
+
+        /// <summary>
+        /// Parametrized partial query that adds a where clause that limits result to ones where station name matches.
+        /// Contained parameters: @startIndex, @limit
+        /// </summary>
+        public const string LimitClause = "LIMIT @startIndex , @limit\n";
     }
 }

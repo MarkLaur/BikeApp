@@ -204,10 +204,10 @@ namespace ApiServer.Tools
         }
 
         /// <summary>
-        /// Returns a (success, rowCount) tuple.
+        /// Gets the amount of stations that fit the passed data. Returns a (success, rowCount) tuple.
         /// </summary>
         /// <returns></returns>
-        public static async Task<(bool, int)> TryGetStationCount()
+        public static async Task<(bool, int)> TryGetStationCount(string stationName)
         {
             using (MySqlConnection conn = new MySqlConnection(connectionString))
             {
@@ -216,6 +216,12 @@ namespace ApiServer.Tools
                 using (MySqlCommand cmd = conn.CreateCommand())
                 {
                     cmd.CommandText = DBTables.BikeStations.RowCountQuery;
+                    if (!string.IsNullOrWhiteSpace(stationName)) cmd.CommandText += DBTables.BikeStations.WhereNameClause;
+
+                    //AddWithValue should sanitize the string
+                    //TODO: make sure it actually does
+                    cmd.Parameters.AddWithValue("@stationName", $"%{stationName}%");
+
                     using (DbDataReader reader = await cmd.ExecuteReaderAsync())
                     {
                         if (reader.Read())
@@ -235,7 +241,7 @@ namespace ApiServer.Tools
         /// Gets stations from database. Page is zero indexed.
         /// </summary>
         /// <returns></returns>
-        public static async Task<ICollection<Station>> GetStations(int page, int itemsPerPage)
+        public static async Task<ICollection<Station>> GetStations(string stationName, int page, int itemsPerPage)
         {
             using (MySqlConnection conn = new MySqlConnection(connectionString))
             {
@@ -245,7 +251,13 @@ namespace ApiServer.Tools
 
                 using (MySqlCommand cmd = conn.CreateCommand())
                 {
-                    cmd.CommandText = DBTables.BikeStations.GetBikeStationsQuery;
+                    cmd.CommandText = DBTables.BikeStations.SelectAllQuery;
+                    if (!string.IsNullOrWhiteSpace(stationName)) cmd.CommandText += DBTables.BikeStations.WhereNameClause;
+                    cmd.CommandText += DBTables.LimitClause;
+
+                    //AddWithValue should sanitize the string
+                    //TODO: make sure it actually does
+                    cmd.Parameters.AddWithValue("@stationName", $"%{stationName}%");
                     cmd.Parameters.AddWithValue("@startIndex", page * itemsPerPage);
                     cmd.Parameters.AddWithValue("@limit", itemsPerPage);
 
