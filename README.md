@@ -41,7 +41,17 @@ This was made as a pre-assignment for Solita Dev Academy.
 - DB user with limited permissions
 - Improve bike trips database query performance
 - Add an ignoreErrors bool header to BikeStations and BikeTrips PUT edpoints that allows data insertion to continue and a success to be returned even if data validation fails for some list elements. If it's false, then the request should return and error code on an error.
-	
+
+# Compatible data
+Here's some bike trip data. The data is owned by City Bike Finland.
+https://dev.hsl.fi/citybikes/od-trips-2021/2021-05.csv
+https://dev.hsl.fi/citybikes/od-trips-2021/2021-06.csv
+https://dev.hsl.fi/citybikes/od-trips-2021/2021-07.csv
+
+Here's some station data.
+https://opendata.arcgis.com/datasets/726277c507ef4914b0aec3cbcfcbfafc_0.csv
+License and information: https://www.avoindata.fi/data/en/dataset/hsl-n-kaupunkipyoraasemat/resource/a23eef3a-cc40-4608-8aa2-c730d17e8902
+
 # Installation instructions
 1. Download the latest build from the releases page and extract the .zip
 2. Download UsbWebServer and extract the .zip. This project was tested with v8.6
