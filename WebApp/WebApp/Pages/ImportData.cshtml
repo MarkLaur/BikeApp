@@ -52,9 +52,9 @@
     <form enctype="multipart/form-data" asp-page-handler="trip" method="post">
         <input class="form-control mb-3" type="datetime-local" name="departureTime" placeholder="Departure time">
         <input class="form-control mb-3" type="datetime-local" name="returnTime" placeholder="Return time">
-        <input class="form-control mb-3" type="number" min="0" step="1" name="departureStation" placeholder="Departure station ID">
-        <input class="form-control mb-3" type="number" min="0" step="1" name="returnStation" placeholder="Return station ID">
-        <input class="form-control mb-3" type="number" min="0" step="1" name="distance" placeholder="Distance">
+        <input class="form-control mb-3" type="number" min="1" step="1" name="departureStation" placeholder="Departure station ID">
+        <input class="form-control mb-3" type="number" min="1" step="1" name="returnStation" placeholder="Return station ID">
+        <input class="form-control mb-3" type="number" min="10" step="1" name="distance" placeholder="Distance">
         <button class="btn btn-primary" type="submit">Add Trip</button>
     </form>
 

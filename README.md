@@ -30,7 +30,6 @@ This was made as a pre-assignment for Solita Dev Academy.
 - Make station search form more user friendly
 	- The page can only search by name OR id, yet the form allows both to be entered.
 - Column sorting
-- Station and trip entry form
 - Tests
 - DB user with limited permissions
 - Improve bike trips database query performance
