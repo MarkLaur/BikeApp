@@ -1,4 +1,5 @@
 ﻿@using WebApp.Models;
+@inject NavigationManager navMan
 
 <!-- This component renders a table of stations -->
 @if(BikeStations == null || !BikeStations.Any())
@@ -9,6 +10,10 @@ else
 {
     <table class="table border">
         <tr>
+            @if (EnableInfoButton)
+            {
+                <th></th>
+            }
             <th>Station ID</th>
             <th>Nimi</th>
             <th>Namn</th>
@@ -25,7 +30,14 @@ else
 
         @foreach (Models.Station station in BikeStations)
         {
+            string stationURL = navMan.BaseUri + $"StationInfo/{station.ID}";
             <tr>
+                @if(EnableInfoButton)
+                {
+                    <td>
+                        <button class="btn btn-primary btn-sm" onclick="location.href='@stationURL'">Info</button>
+                    </td>
+                }
                 <td>@station.ID</td>
                 <td>@station.NameFin</td>
                 <td>@station.NameSwe</td>
@@ -46,4 +58,6 @@ else
 @code {
     [Parameter]
     public ICollection<Station> BikeStations { get; set; } = new Station[0];
+    [Parameter]
+    public bool EnableInfoButton { get; set; } = true;
 }

@@ -5,6 +5,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Primitives;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.IO;
 using System.Linq;
 using System.Net.Http.Headers;
@@ -70,7 +71,8 @@ namespace WebApp.Services
             HttpResponseMessage response = await client.GetAsync(uri);
             if (!response.IsSuccessStatusCode)
             {
-                throw new BadHttpRequestException($"Couldn't get data from api. ({response.StatusCode})");
+                string responseContent = await response.Content.ReadAsStringAsync();
+                throw new BadHttpRequestException($"Couldn't get data from api. ({response.StatusCode})\n{responseContent}");
             }
 
             return await response.Content.ReadAsStreamAsync();
@@ -156,10 +158,16 @@ namespace WebApp.Services
             return response;
         }
 
-        public async Task<BikeStationsResponse> GetBikeStations(int page)
+        public async Task<BikeStationsResponse> GetBikeStations(int page, string? stationName = null)
         {
+            if(page <= 0)
+            {
+                throw new ArgumentOutOfRangeException("Page must be between 1 and int.MaxValue");
+            }
+
             UriBuilder ub = new UriBuilder(ApiDefinitions.BikeStationsUri);
             ub.Query = $"?page={page}";
+            if(!string.IsNullOrWhiteSpace(stationName)) ub.Query += $"&stationName={stationName}";
 
             Stream json = await GetJson(ub.Uri);
 
@@ -177,6 +185,53 @@ namespace WebApp.Services
             }
 
             return response;
+        }
+
+        /// <summary>
+        /// Returns a (station, userErrorMessage) tuple. Station is null when success is false.
+        /// </summary>
+        /// <param name="stationID"></param>
+        /// <param name="station"></param>
+        /// <param name="userErrorMessage"></param>
+        /// <returns></returns>
+        public async Task<(Station?, string)> TryGetStation(int stationID)
+        {
+            (bool, Stream?) result;
+
+            try
+            {
+                //TODO: Figure out what can throw errors in TryGetStationJson() and handle it.
+                result = await TryGetStationJson(stationID);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError("Bike trips api request failed");
+
+                return (null, "Failed to get Station json: " + ex.Message);
+            }
+
+            //Check if TryGetStationJson() succeeded
+            if (!result.Item1 || result.Item2 == null)
+            {
+                return (null, $"Station {stationID} cannot be found");
+            }
+
+            //Attempt to deserialize
+            Station? station = await JsonSerializer.DeserializeAsync<Station>(result.Item2,
+            new JsonSerializerOptions
+            {
+                PropertyNameCaseInsensitive = true
+            });
+
+            //Station will be null if serialization fails
+            if (station != null)
+            {
+                return (station, "");
+            }
+            else
+            {
+                return (null, "Station deserialization failed");
+            }
         }
         #endregion
     }

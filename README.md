@@ -12,8 +12,9 @@ This was made as a pre-assignment for Solita Dev Academy.
 - Station list view
 	- Lists all stations and shows their data
 - Station search
-	- Searchable by ID
-		- Name search not yet implemented
+	- Searchable by ID or name
+	- Pagination not yet implemented
+- Station Info
 	- Shows station info
 	- Shows trips starting or ending at the station
 	- Pagination not yet implemented
@@ -27,8 +28,9 @@ This was made as a pre-assignment for Solita Dev Academy.
 # TODO
 - Do api requests on the front end to make the site more responsive
 - Fix bike stations page layout
-- Pagination on the station search page
-- Station name search on the station search page
+- Pagination on the station search and station info pages
+- Make station search form more user friendly
+	- The page can only search by name OR id, yet the form allows both to be entered.
 - Column sorting
 - Station and trip entry form
 - Tests

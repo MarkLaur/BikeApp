@@ -1,0 +1,38 @@
+﻿@page "{stationID}"
+@using WebApp.Models;
+@model WebApp.Pages.StationInfoModel
+@{
+    ViewData["Title"] = "Station Info";
+}
+
+<div class="m-4">
+    <h2 class="mb-4">Station Info</h2>
+
+    @if (!Model.StationFound)
+    {
+        <p>@Model.ErrorMessage</p>
+    }
+    else
+    {
+        //TODO: fetch data on client side
+
+        //Check if station was found and spawn station component if it isnt
+        if (Model.SearchedStation is Station station)
+        {
+            Station[] stations = new Station[] { station };
+                <div class="mb-3">
+                    <component type="typeof(Components.BikeStationsTable)" render-mode="Static" param-BikeStations="@stations" param-EnableInfoButton="false"/>
+            </div>
+        }
+
+        <h3 class="mb-3">Trips from or to station</h3>
+        if(Model.StationTrips != null)
+        {
+            <component type="typeof(Components.BikeTripsTable)" render-mode="Static" param-Dataset="@Model.StationTrips" />
+        }
+        else
+        {
+            <p>There are trips related to this station</p>
+        }
+    }
+</div>

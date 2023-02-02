@@ -10,32 +10,30 @@
     <!-- //TODO: allow user to search by station name -->
     <!-- //TODO: block special character and text input -->
     <form class="mb-3" action="@Request.Path">
-        <input class="form-control mb-3" type="number" min="0" step="1" value="@Model.SearchedStationID" id="stationID" name="stationID" placeholder="enter station id" />
+        <input class="form-control mb-3" type="number" min="0" step="1" value="@Model.StationIdQuery" name="stationID" placeholder="Station id" />
+        <input class="form-control mb-3" type="text" value="@Model.StationNameQuery" name="stationName" placeholder="Station name" />
         <button type="submit" class="btn btn-primary">Search</button>
     </form>
 
-@if (Model.ErrorMessage != null)
-{
-    <p>@Model.ErrorMessage</p>
-}
-else
-{
-    @if (Model.SearchedStationID.HasValue)
+    @if (Model.ErrorMessage != null)
+    {
+        <p>@Model.ErrorMessage</p>
+    }
+    else
     {
         //TODO: fetch data on client side
 
         //Check if station was found and spawn station component if it isnt
-        if(Model.SearchedStation is Station station)
+        if (Model.FoundStations.Count != 0)
         {
-            Station[] stations = new Station[] { station };
             <div class="mb-3">
                 <h3 class="mb-3">Found station</h3>
-                <component type="typeof(Components.BikeStationsTable)" render-mode="Static" param-BikeStations="@stations"/>
+                <component type="typeof(Components.BikeStationsTable)" render-mode="Static" param-BikeStations="@Model.FoundStations"/>
             </div>
         }
-
-        <h3 class="mb-3">Trips from and to station</h3>
-        <component type="typeof(Components.BikeTripsTable)" render-mode="Static" param-Dataset="@Model.StationTrips" />
+        else
+        {
+             <p>Couldn't find stations</p>
+        }
     }
-}
 </div>
