@@ -17,13 +17,14 @@ This was made as a pre-assignment for Solita Dev Academy.
 	- Shows station info
 	- Shows trips starting from or ending at the station
 - Data upload page
+	- Station and trip entry forms
 	- Supports csv input
-	- 100MB bike trip file takes about 2 minutes to upload on my system.
-		- After clicking the button the site appears frozen, but it's working. You just have to wait. See the console windows for status updates.
+		- 100MB bike trip file takes about 2 minutes to upload on my system.
+		- After clicking the button the site appears frozen, but it's working. You just have to wait. See the console windows for status updates. The text box at the bottom of the page updates when upload is complete.
 			- This will be fixed when I make the pages load stuff on the client side.
-	- Manual data entry form not yet implemented
 	
 # TODO
+- Handle text from the database in a way that prevents xss attacks
 - Do api requests on the front end to make the site more responsive
 - Fix bike stations page layout
 - Make station search form more user friendly
