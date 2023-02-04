@@ -1,13 +1,4 @@
-﻿using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.SignalR.Protocol;
-using Microsoft.AspNetCore.WebUtilities;
-using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Primitives;
-using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.IO;
-using System.Linq;
+﻿using System;
 using System.Net.Http.Headers;
 using System.Text.Json;
 using WebApp.Models;
@@ -39,9 +30,9 @@ namespace WebApp.Services
             client.DefaultRequestHeaders.Add(ApiDefinitions.ApiKeyHeaderName, ApiDefinitions.ApiKey);
             client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
 
-            //Set a 5 minute timeout because trip csv upload can take a couple minutes and our pages are dumb.
+            //Set a 10 minute timeout because trip csv upload can take a couple minutes and our pages are dumb.
             //TODO: Use AJAX to update upload page with upload progress information.
-            client.Timeout = new TimeSpan(0, 5, 0);
+            client.Timeout = new TimeSpan(0, 10, 0);
         }
 
         #endregion Static Implementation

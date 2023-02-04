@@ -11,6 +11,7 @@ This was made as a pre-assignment for Solita Dev Academy.
 - Implemented single station and trip data entry forms
 - Trip duration is now calculated from departure and return times
 - Fixed trip duration minute calculation
+- Improved trip uploader messaging
 
 # Features
 - Separate web app, API server and MySQL server
