@@ -5,14 +5,6 @@ Critique is welcome; I want to learn more.
 
 This was made as a pre-assignment for Solita Dev Academy.
 
-# Change notes since last build
-- Implemeted station name search
-- Added pagination to station search and station info pages
-- Implemented single station and trip data entry forms
-- Trip duration is now calculated from departure and return times
-- Fixed trip duration minute calculation
-- Improved trip uploader messaging
-
 # Features
 - Separate web app, API server and MySQL server
 - Bike trip list page
