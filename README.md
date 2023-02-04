@@ -36,11 +36,16 @@ This was made as a pre-assignment for Solita Dev Academy.
 - Fix bike stations page layout
 - Make station search form more user friendly
 	- The page can only search by name OR id, yet the form allows both to be entered.
+- Add an edit form to station and trip pages. Don't allow overwriting station data from the station import form or add a toggle for it.
 - Column sorting
 - Tests
 - DB user with limited permissions
 - Improve bike trips database query performance
 - Add an ignoreErrors bool header to BikeStations and BikeTrips PUT edpoints that allows data insertion to continue and a success to be returned even if data validation fails for some list elements. If it's false, then the request should return and error code on an error.
+- Upload progress API endpoint
+	- Can be used to update the app's upload page with proggress information on long uploads.
+	- App is given a unique key that identifies the upload when the upload is starts.
+	- The key can be passed to the progress enpoint to get information about the upload's progress.
 
 # Compatible data
 Here's some bike trip data. The data is owned by City Bike Finland.  

@@ -1,18 +1,27 @@
 ﻿using System.Text.Json.Serialization;
 
-namespace WebApp.Models
+namespace WebApp.Models.ApiResponses
 {
     public class TripInsertResult
     {
-        public bool AnyBadData => MissingStationInstances != 0 || TotalMissingStations != 0 || OtherInvalidData != 0;
+        public int InsertedItems { get; private set; }
+        public int RejectedItems { get; private set; }
         public int MissingStationInstances { get; private set; }
         public int TotalMissingStations { get; private set; }
         public int OtherInvalidData { get; private set; }
         public string Message { get; private set; }
 
         [JsonConstructor]
-        public TripInsertResult(int missingStationInstances, int totalMissingStations, int otherInvalidData, string message)
+        public TripInsertResult(
+            int insertedItems,
+            int rejectedItems,
+            int missingStationInstances,
+            int totalMissingStations,
+            int otherInvalidData,
+            string message)
         {
+            InsertedItems = insertedItems;
+            RejectedItems = rejectedItems;
             MissingStationInstances = missingStationInstances;
             TotalMissingStations = totalMissingStations;
             OtherInvalidData = otherInvalidData;
@@ -20,7 +29,7 @@ namespace WebApp.Models
         }
 
         public override string ToString() =>
-            $"{Message} MissingStationInstances: {MissingStationInstances}" +
+            $"{Message} InsertedItems: {InsertedItems} RejectedItems: {RejectedItems} MissingStationInstances: {MissingStationInstances}" +
             $" TotalMissingStations: {TotalMissingStations} OtherInvalidData: {OtherInvalidData}";
     }
 }

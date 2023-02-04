@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using System.Net;
 using WebApp.Models;
+using WebApp.Models.ApiResponses;
 using WebApp.Services;
 using WebApp.Tools;
 
@@ -122,19 +123,33 @@ namespace WebApp.Pages
                 return;
             }
 
-            _logger.LogInformation("CSV parsed. Starting upload.");
-
+            _logger.LogInformation($"CSV parsed. Invalid line count: {invalidLines}. Starting upload.");
             TripsMessage = $"Uploading bike trips: {trips.Count}. Invalid lines: {invalidLines}.";
 
             (HttpResponseMessage, TripInsertResult?) response = await _apiService.UploadTrips(trips);
 
+            //TODO: Make messaging in the app good so that we don't have to use the debug windows
+
+            // Log the result
             if (response.Item1.IsSuccessStatusCode)
             {
                 TripsMessage += $" Upload succesful.";
 
-                if (response.Item2 == null) TripsMessage += $" Reponse data block is null.";
-                else if (response.Item2.AnyBadData) TripsMessage += $" {response.Item2}";
-                else TripsMessage += $" {response.Item2}";
+                if (response.Item2 == null)
+                {
+                    _logger.LogInformation($" Upload succesful. Response data block is null.");
+                    TripsMessage += $" Reponse data block is null.";
+                }
+                else if (response.Item2.RejectedItems != 0)
+                {
+                    _logger.LogInformation($" Upload succesful. Some invalid data was rejected. {response.Item2}");
+                    TripsMessage += $" Some invalid data was rejected. {response.Item2}";
+                }
+                else
+                {
+                    _logger.LogInformation($" Upload succesful. All data was accepted.");
+                    TripsMessage += $" All data was accepted. Trips added: {response.Item2.InsertedItems}";
+                }
             }
             else if (response.Item1.StatusCode == HttpStatusCode.BadRequest) //Api returns 400 if model validation fails
             {
@@ -169,7 +184,7 @@ namespace WebApp.Pages
             if (response.Item1.IsSuccessStatusCode)
             {
                 if (response.Item2 == null) TripMessage += $" Reponse data block is null.";
-                else if (response.Item2.AnyBadData)
+                else if (response.Item2.RejectedItems != 0)
                 {
                     TripMessage += $" Some trip data was invalid. {response.Item2}";
                 }

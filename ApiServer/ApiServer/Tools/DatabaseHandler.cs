@@ -350,6 +350,8 @@ namespace ApiServer.Tools
                 throw new NotImplementedException();
             }
 
+            int insertedTrips = 0;
+            int invalidTrips = 0;
             int missingStationInstances = 0;
             int otherInvalidData = 0;
 
@@ -405,24 +407,32 @@ namespace ApiServer.Tools
                             current++;
                             if(current % 10000 == 0) logger.LogInformation($"Processing trips and inserting valid ones to db. ({current}/{total})");
 
+                            bool invalidTrip = false;
+
                             //Check if station is missing
                             if (missingStations.Contains(trip.DepartureStationID))
                             {
+                                invalidTrip = true;
                                 missingStationInstances++;
-                                continue;
                             }
 
                             //Check if other station is missing separately to correcly tick the tracker
                             if (missingStations.Contains(trip.ReturnStationID))
                             {
+                                invalidTrip = true;
                                 missingStationInstances++;
-                                continue;
                             }
 
                             //Check if data is valid for the insert mode
                             if (mode == BikeTripInsertMode.Insert && trip.ID != 0)
                             {
+                                invalidTrip = true;
                                 otherInvalidData++;
+                            }
+
+                            if (invalidTrip)
+                            {
+                                invalidTrips++;
                                 continue;
                             }
 
@@ -437,6 +447,7 @@ namespace ApiServer.Tools
                             cmd.Parameters.AddWithValue("@distance", trip.Distance);
 
                             cmd.ExecuteNonQuery();
+                            insertedTrips++;
                         }
 
                         await transaction.CommitAsync();
@@ -444,9 +455,10 @@ namespace ApiServer.Tools
                 }
             }
 
-            logger.LogInformation($"All trips inserted.");
+            TripInsertResult result = new TripInsertResult(insertedTrips, invalidTrips, missingStationInstances, missingStations.Count, otherInvalidData);
+            logger.LogInformation($"Trip processing finished. Result: {result}");
 
-            return new TripInsertResult(missingStationInstances, missingStations.Count, otherInvalidData);
+            return result;
         }
 
         public static bool TryGetStation(int stationID, [NotNullWhen(true), MaybeNullWhen(false)] out Station station)
