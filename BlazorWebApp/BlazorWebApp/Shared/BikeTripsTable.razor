@@ -1,0 +1,53 @@
+﻿@using System.Globalization;
+@using BlazorWebApp.Models;
+@using BlazorWebApp.Services;
+
+<!-- This component renders a table of bike trips -->
+@if(Dataset == null || !Dataset.BikeTrips.Any())
+{
+    <p>No bike trips</p>
+}
+else
+{
+    <div class="table-responsive border">
+    <table class="table">
+        <tr>
+            <th>Journey</th>
+            <th>Departure time</th>
+            <th>Return time</th>
+            <th>Departure Station</th>
+            <th>Return Station</th>
+            <th>Duration</th>
+            <th>Distance</th>
+        </tr>
+
+        @foreach (Models.BikeTrip trip in Dataset.BikeTrips)
+        {
+            //Distance and duration need some custom formatting
+            string durationMessage = $"{MathF.Floor((float)trip.Duration.TotalMinutes)}m {trip.Duration.Seconds}s";
+            string distanceMessage = $"{(trip.Distance / 1000f).ToString("0.00")} km";
+
+            string departureStationName = trip.DepartureStation != null ? trip.DepartureStation.NameFin : $"Missing station {trip.DepartureStationID}";
+            string returnStationName = trip.ReturnStation != null ? trip.ReturnStation.NameFin : $"Missing station {trip.ReturnStationID}";
+
+            <tr>
+                <td>@trip.ID</td>
+                <td>@trip.DepartureTime.ToString(culture)</td>
+                <td>@trip.ReturnTime.ToString(culture)</td>
+                <td>@departureStationName</td>
+                <td>@returnStationName</td>
+                <td>@durationMessage</td>
+                <td>@distanceMessage</td>
+            </tr>
+        }
+    </table>
+    </div>
+}
+
+@code {
+    [Parameter, EditorRequired]
+    public BikeTripsWithStations Dataset { get; set; } = new(new(), new());
+
+    //TODO: Get culture from user's browzer
+    private CultureInfo culture = new CultureInfo("fi-Fi");
+}

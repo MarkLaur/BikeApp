@@ -1,0 +1,80 @@
+﻿@page "/biketrips"
+@using BlazorWebApp.Models;
+@using BlazorWebApp.Models.ApiResponses;
+@using BlazorWebApp.Services;
+@using Microsoft.AspNetCore.Mvc;
+@using System.ComponentModel.DataAnnotations;
+@inject ApiService ApiService
+@inject ILogger<BikeTrips> logger
+
+<PageTitle>Bike trips</PageTitle>
+
+<h2 class="mb-4">List of trips</h2>
+
+<PageButtons CurrentPage="@Page" LastPage="@LastPage" />
+
+@if (LoadingTrips)
+{
+    <p>Loading trips...</p>
+}
+else
+{
+    @if (Trips == null)
+    {
+        <p>@ErrorMessage</p>
+    }
+    else
+    {
+        <BikeTripsTable Dataset="@Trips" />
+    }
+}
+
+@code {
+    [Parameter, SupplyParameterFromQuery]
+    public int Page { get; set; }
+
+    /// <summary>
+    /// Contains the error message shown to user. Will be null if no errors occurred.
+    /// </summary>
+    public string? ErrorMessage { get; private set; }
+    /// <summary>
+    /// Contains station data if ErrorMessage isn't null.
+    /// </summary>
+    public BikeTripsWithStations? Trips { get; private set; } = null;
+
+    public int LastPage { get; private set; }
+
+    public bool LoadingTrips { get; private set; }
+
+    protected override async Task OnParametersSetAsync()
+    {
+        Page = Math.Clamp(Page, 1, int.MaxValue);
+        LastPage = Math.Clamp(LastPage, 1, int.MaxValue);
+        await GetTrips();
+    }
+
+    protected async Task GetTrips()
+    {
+        LoadingTrips = true;
+
+        BikeTripsResponse response;
+
+        try
+        {
+            response = await ApiService.GetBikeTrips(Page);
+        }
+        catch (Exception ex)
+        {
+            logger.LogError("Bike trips api request failed. " + ex.Message);
+
+            ErrorMessage = ex.Message;
+            LoadingTrips = false;
+            return;
+        }
+
+        LastPage = response.LastPage;
+        Trips = response.Trips;
+
+        LoadingTrips = false;
+    }
+}

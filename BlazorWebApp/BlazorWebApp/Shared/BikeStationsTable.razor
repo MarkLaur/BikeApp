@@ -1,0 +1,63 @@
+﻿@using BlazorWebApp.Models;
+@inject NavigationManager navMan
+
+<!-- This component renders a table of stations -->
+@if(BikeStations == null || !BikeStations.Any())
+{
+    <p>No stations</p>
+}
+else
+{
+    <table class="table border">
+        <tr>
+            @if (EnableInfoButton)
+            {
+                <th></th>
+            }
+            <th>Station ID</th>
+            <th>Nimi</th>
+            <th>Namn</th>
+            <th>Name</th>
+            <th>Osoite</th>
+            <th>Adress</th>
+            <th>Kaupunki</th>
+            <th>Stad</th>
+            <th>Operator</th>
+            <th>Capacity</th>
+            <th>X</th>
+            <th>Y</th>
+        </tr>
+
+        @foreach (Models.Station station in BikeStations)
+        {
+            string stationURL = navMan.BaseUri + $"StationInfo/{station.ID}";
+            <tr>
+                @if(EnableInfoButton)
+                {
+                    <td>
+                        <button class="btn btn-primary btn-sm" onclick="location.href='@stationURL'">Info</button>
+                    </td>
+                }
+                <td>@station.ID</td>
+                <td>@station.NameFin</td>
+                <td>@station.NameSwe</td>
+                <td>@station.Name</td>
+                <td>@station.AddressFin</td>
+                <td>@station.AddressSwe</td>
+                <td>@station.CityFin</td>
+                <td>@station.CitySwe</td>
+                <td>@station.OperatorName</td>
+                <td>@station.Capacity</td>
+                <td>@station.PosX</td>
+                <td>@station.PosY</td>
+            </tr>
+        }
+    </table>
+}
+
+@code {
+    [Parameter, EditorRequired]
+    public ICollection<Station> BikeStations { get; set; } = new Station[0];
+    [Parameter]
+    public bool EnableInfoButton { get; set; } = true;
+}
