@@ -66,3 +66,12 @@ a, .btn-link {
     .blazor-error-boundary::after {
         content: "An error has occurred."
     }
+
+.page-div {
+    display: flex;
+    justify-content: space-between;
+}
+
+.page-button {
+    width: 110px;
+}

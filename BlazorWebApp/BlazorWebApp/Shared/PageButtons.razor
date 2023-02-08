@@ -7,26 +7,30 @@
 <div class="mb-2 page-div">
     @if (PreviousPage != null)
     {
-        <NavLink class="nav-link" href="@PreviousPage">
+        <NavLink href="@PreviousPage">
             <button class="btn btn-primary btn-sm page-button">Previous page</button>
         </NavLink>
     }
     else
     {
-        <button class="btn btn-primary btn-sm page-button" disabled>Previous page</button>
+        <NavLink>
+            <button class="btn btn-primary btn-sm page-button" disabled>Previous page</button>
+        </NavLink>
     }
 
     <h4>Page @CurrentPage / @LastPage</h4>
 
     @if (NextPage != null)
     {
-        <NavLink class="nav-link" href="@NextPage">
+        <NavLink href="@NextPage">
             <button class="btn btn-primary btn-sm page-button">Next page</button>
         </NavLink>
     }
     else
     {
-        <button class="btn btn-primary btn-sm page-button" disabled>Next page</button>
+        <NavLink>
+            <button class="btn btn-primary btn-sm page-button" disabled>Next page</button>
+        </NavLink>
     }
 </div>
 
