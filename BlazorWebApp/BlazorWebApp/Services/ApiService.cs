@@ -55,13 +55,13 @@ namespace BlazorWebApp.Services
         /// </summary>
         /// <param name="uri"></param>
         /// <returns></returns>
-        public async Task<Stream> GetJson(Uri uri)
+        public async Task<Stream> GetJson(Uri uri, CancellationToken token = default)
         {
             //Perform api request
-            HttpResponseMessage response = await client.GetAsync(uri);
+            HttpResponseMessage response = await client.GetAsync(uri, token);
             if (!response.IsSuccessStatusCode)
             {
-                string responseContent = await response.Content.ReadAsStringAsync();
+                string responseContent = await response.Content.ReadAsStringAsync(token);
                 throw new BadHttpRequestException($"Couldn't get data from api. ({response.StatusCode})\n{responseContent}");
             }
 
@@ -189,20 +189,20 @@ namespace BlazorWebApp.Services
 
         #region Trip Tasks
 
-        public async Task<BikeTripsResponse> GetBikeTrips(int page, int? stationID = null)
+        public async Task<BikeTripsResponse> GetBikeTrips(int page, int? stationID = null, CancellationToken token = default)
         {
             UriBuilder ub = new UriBuilder(ApiDefinitions.BikeTripsUri);
             ub.Query = $"?page={page}";
             if (stationID.HasValue) ub.Query += $"&stationID={stationID}";
 
-            Stream json = await GetJson(ub.Uri);
+            Stream json = await GetJson(ub.Uri, token);
 
             //Try to deserialize trips
             BikeTripsResponse? response = await JsonSerializer.DeserializeAsync<BikeTripsResponse>(json,
             new JsonSerializerOptions
             {
                 PropertyNameCaseInsensitive = true
-            });
+            }, token);
 
             //Trips will be null if deserialization failed
             if (response == null)

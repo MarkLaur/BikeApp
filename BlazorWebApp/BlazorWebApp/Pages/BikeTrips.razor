@@ -46,14 +46,30 @@ else
 
     public bool LoadingTrips { get; private set; }
 
-    protected override async Task OnParametersSetAsync()
+    private (Task, CancellationTokenSource)? TripTask;
+
+    protected override void OnParametersSet()
     {
         Page = Math.Clamp(Page, 1, int.MaxValue);
         LastPage = Math.Clamp(LastPage, 1, int.MaxValue);
-        await GetTrips();
+
+        //Kill old task if it exists
+        if(TripTask.HasValue && !TripTask.Value.Item1.IsCompleted)
+        {
+            TripTask.Value.Item2.Cancel();
+        }
+
+        //Create new task
+        CancellationTokenSource source = new CancellationTokenSource();
+        TripTask = (GetTrips(source.Token), source);
     }
 
-    protected async Task GetTrips()
+    /// <summary>
+    /// Task that gets bike trips from api and saves the data to local variables. Triggers UI update on completion.
+    /// </summary>
+    /// <param name="token"></param>
+    /// <returns></returns>
+    protected async Task GetTrips(CancellationToken token = default)
     {
         LoadingTrips = true;
 
@@ -61,7 +77,12 @@ else
 
         try
         {
-            response = await ApiService.GetBikeTrips(Page);
+            response = await ApiService.GetBikeTrips(Page, null, token);
+        }
+        catch (TaskCanceledException)
+        {
+            //We can just completely ignore TaskCanceledExceptions because this always happens when we want to discard this task.
+            return;
         }
         catch (Exception ex)
         {
@@ -76,5 +97,7 @@ else
         Trips = response.Trips;
 
         LoadingTrips = false;
+
+        StateHasChanged();
     }
 }
